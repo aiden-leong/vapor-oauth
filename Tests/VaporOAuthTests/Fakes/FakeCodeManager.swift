@@ -12,7 +12,7 @@ class FakeCodeManager: CodeManager {
         return codes[code]
     }
     
-    func generateCode(userID: Identifier, clientID: String, redirectURI: String, scopes: [String]?) throws -> String {
+    func generateCode(userID: UUID, clientID: String, redirectURI: String, scopes: [String]?) throws -> String {
         let code = OAuthCode(codeID: generatedCode, clientID: clientID, redirectURI: redirectURI, userID: userID, expiryDate: Date().addingTimeInterval(60), scopes: scopes)
         codes[generatedCode] = code
         return generatedCode

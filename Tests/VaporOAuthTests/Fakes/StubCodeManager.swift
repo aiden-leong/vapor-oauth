@@ -5,7 +5,7 @@ class StubCodeManager: CodeManager {
     
     var codeToReturn = "ABCDEFHIJKLMNO"
     
-    func generateCode(userID: Identifier, clientID: String, redirectURI: String, scopes: [String]?) throws -> String {
+    func generateCode(userID: UUID, clientID: String, redirectURI: String, scopes: [String]?) throws -> String {
         return codeToReturn
     }
     

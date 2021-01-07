@@ -2,11 +2,11 @@ import VaporOAuth
 import Node
 
 struct StubUserManager: UserManager {
-    func authenticateUser(username: String, password: String) -> Identifier? {
+    func authenticateUser(username: String, password: String) -> UUID? {
         return nil
     }
     
-    func getUser(userID: Identifier) -> OAuthUser? {
+    func getUser(userID: UUID) -> OAuthUser? {
         return nil
     }
 }

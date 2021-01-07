@@ -1,3 +1,5 @@
+import Vapor
+
 public enum OAuthFlowType: String {
     case authorization = "authorization_code"
     case implicit = "implicit"

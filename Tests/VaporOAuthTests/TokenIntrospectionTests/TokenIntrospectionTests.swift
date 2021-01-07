@@ -170,7 +170,7 @@ class TokenIntrospectionTests: XCTestCase {
     }
     
     func testUsernameReturnedInTokenResponseIfTokenHasAUser() throws {
-        let userID: Identifier = 123
+        let userID: UUID = 123
         let username = "hansolo"
         let tokenString = "VALID_TOKEN"
         let validToken = AccessToken(tokenString: tokenString, clientID: clientID, userID: userID, expiryTime: Date().addingTimeInterval(60))

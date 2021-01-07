@@ -7,13 +7,13 @@ class StubTokenManager: TokenManager {
     var accessToken = "ABCDEF"
     var refreshToken = "GHIJKL"
     
-    func generateAccessRefreshTokens(clientID: String, userID: Identifier?, scopes: [String]?, accessTokenExpiryTime: Int) throws -> (AccessToken, RefreshToken) {
+    func generateAccessRefreshTokens(clientID: String, userID: UUID?, scopes: [String]?, accessTokenExpiryTime: Int) throws -> (AccessToken, RefreshToken) {
         let access = AccessToken(tokenString: accessToken, clientID: clientID, userID: userID, scopes: scopes, expiryTime: Date())
         let refresh = RefreshToken(tokenString: refreshToken, clientID: clientID, userID: nil, scopes: scopes)
         return (access, refresh)
     }
     
-    func generateAccessToken(clientID: String, userID: Identifier?, scopes: [String]?, expiryTime: Int) throws -> AccessToken {
+    func generateAccessToken(clientID: String, userID: UUID?, scopes: [String]?, expiryTime: Int) throws -> AccessToken {
         return AccessToken(tokenString: accessToken, clientID: clientID, userID: userID, scopes: scopes, expiryTime: Date())
     }
     

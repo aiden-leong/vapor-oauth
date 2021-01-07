@@ -1,15 +1,14 @@
-import Core
-import Node
+import Vapor
 
 public final class RefreshToken: Extendable {
     public let tokenString: String
     public let clientID: String
-    public let userID: Identifier?
+    public let userID: UUID?
     public var scopes: [String]?
 
-    public var extend: [String: Any] = [:]
+    public var extend = Extend()
 
-    public init(tokenString: String, clientID: String, userID: Identifier?, scopes: [String]? = nil) {
+    public init(tokenString: String, clientID: String, userID: UUID?, scopes: [String]? = nil) {
         self.tokenString = tokenString
         self.clientID = clientID
         self.userID = userID

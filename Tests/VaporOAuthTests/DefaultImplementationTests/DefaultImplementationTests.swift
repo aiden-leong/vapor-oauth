@@ -52,7 +52,7 @@ class DefaultImplementationTests: XCTestCase {
 
     func testThatEmptyUserManagerReturnsNilWhenTryingToGetUser() {
         let emptyUserManager = EmptyUserManager()
-        let idenfitier: Identifier = "some-id"
+        let idenfitier: UUID = "some-id"
         XCTAssertNil(emptyUserManager.getUser(userID: idenfitier))
     }
 
@@ -78,13 +78,13 @@ class DefaultImplementationTests: XCTestCase {
 
     func testThatEmptyCodeManagerGeneratesEmptyStringAsCode() throws {
         let emptyCodeManager = EmptyCodeManager()
-        let identifier: Identifier = "identifier"
+        let identifier: UUID = "identifier"
         XCTAssertEqual(try emptyCodeManager.generateCode(userID: identifier, clientID: "client-id", redirectURI: "https://api.brokenhands.io/callback", scopes: nil), "")
     }
 
     func testThatCodeUsedDoesNothingInEmptyCodeManager() {
         let emptyCodeManager = EmptyCodeManager()
-        let identifier: Identifier = "identifier"
+        let identifier: UUID = "identifier"
         let code = OAuthCode(codeID: "id", clientID: "client-id", redirectURI: "https://api.brokenhands.io/callback", userID: identifier, expiryDate: Date(), scopes: nil)
         emptyCodeManager.codeUsed(code)
     }

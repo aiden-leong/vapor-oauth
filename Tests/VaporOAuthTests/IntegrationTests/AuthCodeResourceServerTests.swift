@@ -33,7 +33,7 @@ class AuthCodeResourceServerTests: XCTestCase {
     let redirectURI = "https://brokenhands.io/callback"
     let scope = "user"
     let scope2 = "email"
-    let userID: Identifier = "user-id"
+    let userID: UUID = "user-id"
     let username = "han"
     let email = "han.solo@therebelalliance.com"
     var newUser: OAuthUser!
@@ -379,11 +379,11 @@ struct TestResourceController {
         protected.get("user", handler: getOAuthUser)
     }
     
-    func protectedHandler(request: Request) throws -> ResponseRepresentable {
+    func protectedHandler(request: Request) throws -> String {
         return "PROTECTED"
     }
     
-    func getOAuthUser(request: Request) throws -> ResponseRepresentable {
+    func getOAuthUser(request: Request) throws -> String {
         let user: OAuthUser = try request.oauth.user()
         var json = JSON()
         try json.set("userID", user.id)
@@ -406,11 +406,11 @@ struct RemoteResourceController {
         protected.get("user", handler: getOAuthUser)
     }
     
-    func protectedHandler(request: Request) throws -> ResponseRepresentable {
+    func protectedHandler(request: Request) throws -> String {
         return "PROTECTED"
     }
     
-    func getOAuthUser(request: Request) throws -> ResponseRepresentable {
+    func getOAuthUser(request: Request) throws -> String {
         let user: OAuthUser = try request.oauth.user()
         var json = JSON()
         try json.set("userID", user.id)

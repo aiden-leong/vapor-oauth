@@ -12,7 +12,7 @@ class CapturingAuthoriseHandler: AuthorizeHandler {
     private(set) var state: String?
     private(set) var csrfToken: String?
     
-    func handleAuthorizationRequest(_ request: Request, authorizationRequestObject: AuthorizationRequestObject) throws -> ResponseRepresentable {
+    func handleAuthorizationRequest(_ request: Request, authorizationRequestObject: AuthorizationRequestObject) throws -> String {
         self.request = request
         self.responseType = authorizationRequestObject.responseType
         self.clientID = authorizationRequestObject.clientID
@@ -25,7 +25,7 @@ class CapturingAuthoriseHandler: AuthorizeHandler {
     }
     
     private(set) var authorizationError: AuthorizationError?
-    func handleAuthorizationError(_ errorType: AuthorizationError) -> ResponseRepresentable {
+    func handleAuthorizationError(_ errorType: AuthorizationError) -> String {
         authorizationError = errorType
         return "Error"
     }

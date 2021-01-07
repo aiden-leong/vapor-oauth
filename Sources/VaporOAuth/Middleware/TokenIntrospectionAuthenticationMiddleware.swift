@@ -1,16 +1,19 @@
-import Vapor
-
-struct TokenIntrospectionAuthMiddleware: Middleware {
-
-    let resourceServerAuthenticator: ResourceServerAuthenticator
-
-    func respond(to request: Request, chainingTo next: Responder) throws -> Response {
-        guard let password = request.auth.header?.basic else {
-            throw Abort.unauthorized
-        }
-
-        try resourceServerAuthenticator.authenticate(credentials: password)
-
-        return try next.respond(to: request)
-    }
-}
+//import Vapor
+//
+//struct TokenIntrospectionAuthMiddleware: Middleware {
+//
+//
+//    let resourceServerAuthenticator: ResourceServerAuthenticator
+//
+//    public func respond(to request: Request, chainingTo next: Responder) -> EventLoopFuture<Response> {
+//        guard let basicAuthorization = request.headers.basicAuthorization else {
+//            return request.eventLoop.future(error: Abort(.unauthorized))
+//        }
+//        do {
+//            try resourceServerAuthenticator.authenticate(credentials: basicAuthorization)
+//        } catch {
+//            return request.eventLoop.future(error: Abort(.unauthorized, reason: "TODO TODO TODO"))
+//        }
+//        return next.respond(to: request)
+//    }
+//}

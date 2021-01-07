@@ -1,6 +1,6 @@
-import Node
-
-public protocol UserManager {
-    func authenticateUser(username: String, password: String) -> Identifier?
-    func getUser(userID: Identifier) -> OAuthUser?
-}
+//import Vapor
+//
+//public protocol UserManager {
+//    func authenticateUser(username: String, password: String) -> UUID?
+//    func getUser(userID: UUID) -> OAuthUser?
+//}

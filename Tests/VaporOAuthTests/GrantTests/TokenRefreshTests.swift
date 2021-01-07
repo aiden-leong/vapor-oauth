@@ -401,7 +401,7 @@ class TokenRefreshTests: XCTestCase {
     }
     
     func testUserIDIsSetOnAccessTokenIfRefreshTokenHasOne() throws {
-        let userID: Identifier = "abcdefg-123456"
+        let userID: UUID = "abcdefg-123456"
         let accessToken = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         let userIDRefreshTokenString = "ASHFUIEWHFIHEWIUF"
         let userIDRefreshToken = RefreshToken(tokenString: userIDRefreshTokenString, clientID: testClientID, userID: userID, scopes: [scope1, scope2])

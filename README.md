@@ -105,7 +105,7 @@ As well as implementing the Code Manager, Token Manager, and Client Retriever, t
 It is your responsibility to ensure that the user is logged in and handling the case when they are not. An example implementation for the authorize handler may look something like:
 
 ```swift
-func handleAuthorizationRequest(_ request: Request, authorizationGetRequestObject: AuthorizationGetRequestObject) throws -> ResponseRepresentable {
+func handleAuthorizationRequest(_ request: Request, authorizationGetRequestObject: AuthorizationGetRequestObject) throws -> String {
     guard request.auth.isAuthenticated(FluentOAuthUser.self) else {
         let redirectCookie = Cookie(name: "OAuthRedirect", value: request.uri.description)
         let response = Response(redirect: "/login")

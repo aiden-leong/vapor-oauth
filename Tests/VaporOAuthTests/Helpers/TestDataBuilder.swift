@@ -172,7 +172,7 @@ class TestDataBuilder
         return try drop.respond(to: authRequest)
     }
     
-    static let anyUserID: Identifier = "12345-asbdsadi"
+    static let anyUserID: UUID = "12345-asbdsadi"
     static func anyOAuthUser() -> OAuthUser {
         return OAuthUser(userID: TestDataBuilder.anyUserID, username: "hansolo", emailAddress: "han.solo@therebelalliance.com", password: "leia".makeBytes())
     }

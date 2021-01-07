@@ -1,3 +1,5 @@
+import Vapor
+
 struct OAuthRequestParameters {
     static let clientID = "client_id"
     static let clientSecret = "client_secret"

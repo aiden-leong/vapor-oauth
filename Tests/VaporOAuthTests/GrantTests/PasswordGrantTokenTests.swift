@@ -46,7 +46,7 @@ class PasswordGrantTokenTests: XCTestCase {
     let testClientSecret = "01234567890"
     let testUsername = "testUser"
     let testPassword = "testPassword"
-    let testUserID: Identifier = "ABCD-FJUH-31232"
+    let testUserID: UUID = "ABCD-FJUH-31232"
     let accessToken = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     let refreshToken = "ABCDEFGHIJLMNOP1234567890"
     let scope1 = "email"
