@@ -11,6 +11,10 @@ public final class Provider: LifecycleHandler {
 //    let validScopes: [String]?
 //    let resourceServerRetriever: ResourceServerRetriever
 //
+
+    public init() throws {
+        throw OAuthProviderError.configInitUnavailble
+    }
 //    public init(codeManager: CodeManager = EmptyCodeManager(), tokenManager: TokenManager,
 //                clientRetriever: ClientRetriever, authorizeHandler: AuthorizeHandler = EmptyAuthorizationHandler(),
 //                userManager: UserManager = EmptyUserManager(), validScopes: [String]? = nil,
