@@ -11,13 +11,13 @@ struct TokenResponse: Codable {
 }
 
 struct TokenResponseGenerator {
-    func createResponse(error: String, description: String, status: HTTPStatus = .badRequest) throws -> EventLoopFuture<Response> {
+    func createResponse(_ req: Request, error: String, description: String, status: HTTPStatus = .badRequest) throws -> EventLoopFuture<Response> {
         let tokenResponse = TokenResponse(error: error, errorDescription: description)
 
-        return try createResponseForToken(status: status, tokenResponse: tokenResponse)
+        return try createResponseForToken(req, status: status, tokenResponse: tokenResponse)
     }
 
-    func createResponse(accessToken: AccessToken, refreshToken: RefreshToken?,
+    func createResponse(_ req: Request, accessToken: AccessToken, refreshToken: RefreshToken?,
                         expiresIn: Int, scope: String?) throws -> EventLoopFuture<Response> {
 
         var tokenResponse = TokenResponse(tokenType: "bearer", expiresIn: expiresIn, accessToken: accessToken.tokenString)
@@ -30,10 +30,10 @@ struct TokenResponseGenerator {
             tokenResponse.scope = scope
         }
 
-        return try createResponseForToken(status: .ok, tokenResponse: tokenResponse)
+        return try createResponseForToken(req, status: .ok, tokenResponse: tokenResponse)
     }
 
-    private func createResponseForToken(status: HTTPStatus, tokenResponse: TokenResponse) throws -> EventLoopFuture<Response> {
+    private func createResponseForToken(_ req: Request, status: HTTPStatus, tokenResponse: TokenResponse) throws -> EventLoopFuture<Response> {
         let encoder = JSONEncoder()
         encoder.outputFormatting = .prettyPrinted
         let data = try! encoder.encode(tokenResponse)
@@ -44,7 +44,7 @@ struct TokenResponseGenerator {
         response.headers.add(name: "Pragma", value: "no-cache")
         response.headers.add(name: "Cache-Control", value: "no-store")
 
-        return response
+        return req.eventLoop.future(response)
     }
 
 }

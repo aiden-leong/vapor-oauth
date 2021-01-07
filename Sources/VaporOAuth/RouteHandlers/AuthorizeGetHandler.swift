@@ -14,14 +14,13 @@ struct AuthorizeGetHandler {
         }
 
         guard let authRequestObject = createdAuthRequestObject else {
-            req.eventLoop.makeFailedFuture(Abort(.internalServerError))
+            throw Abort(.internalServerError)
         }
 
         do {
             try clientValidator.validateClient(clientID: authRequestObject.clientID, responseType: authRequestObject.responseType,
                     redirectURI: authRequestObject.redirectURIString, scopes: authRequestObject.scopes)
         } catch AuthorizationError.invalidClientID {
-            let x = try authorizeHandler.handleAuthorizationError(.invalidClientID) 
             return try authorizeHandler.handleAuthorizationError(.invalidClientID)
         } catch AuthorizationError.invalidRedirectURI {
             return try authorizeHandler.handleAuthorizationError(.invalidRedirectURI)
@@ -53,20 +52,25 @@ struct AuthorizeGetHandler {
             return try authorizeHandler.handleAuthorizationError(.httpRedirectURI)
         }
 
-        let redirectURI = URIParser.shared.parse(bytes: authRequestObject.redirectURIString.makeBytes())
-        let csrfToken = Random.bytes(count: 32).hexString
+        let redirectURI = URI(string: authRequestObject.redirectURIString)
+        let csrfToken = String(Int.random(in: 1..<999999))
+        // let csrfToken = Random.bytes(count: 32).hexString
 
-        guard let session = req.session else {
-            req.eventLoop.makeFailedFuture(Abort(.badRequest))
-        }
+        let session = req.session
 
-        try session.data.set(SessionData.csrfToken, csrfToken)
+        session.data[SessionData.csrfToken] = csrfToken
+        
         let authorizationRequestObject = AuthorizationRequestObject(responseType: authRequestObject.responseType,
                 clientID: authRequestObject.clientID, redirectURI: redirectURI,
                 scope: authRequestObject.scopes, state: authRequestObject.state,
                 csrfToken: csrfToken)
 
-        return try authorizeHandler.handleAuthorizationRequest(req, authorizationRequestObject: authorizationRequestObject)
+        let bodyString = try authorizeHandler.handleAuthorizationRequest(req, authorizationRequestObject: authorizationRequestObject)
+
+        let headers = HTTPHeaders()
+        let body = Response.Body(string: bodyString)
+        let response = Response(status: .ok, version: .init(major: 1, minor: 1), headers: headers, body: body)
+        return  response
     }
 
     private func validateRequest(_ req: Request) throws -> (Response?, AuthorizationGetRequestObject?) {
@@ -86,7 +90,9 @@ struct AuthorizeGetHandler {
             scopes = []
         }
 
-        let state: String = req.query[OAuthRequestParameters.state]
+        guard let state: String = req.query[OAuthRequestParameters.state] else {
+            return (try authorizeHandler.handleAuthorizationError(.invalidRedirectURI), nil)
+        }
 
         guard let responseType: String = req.query[OAuthRequestParameters.responseType] else {
             let errorResponse = createErrorResponse(

@@ -13,6 +13,5 @@ let package = Package(
     ],
     targets: [
         .target(name: "VaporOAuth", dependencies: ["Vapor"]),
-        .testTarget(name: "VaporOAuthTests", dependencies: ["VaporOAuth"]),
     ]
 )

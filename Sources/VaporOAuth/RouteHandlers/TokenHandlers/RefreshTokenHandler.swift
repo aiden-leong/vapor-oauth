@@ -28,22 +28,22 @@ struct RefreshTokenHandler {
             do {
                 try scopeValidator.validateScope(clientID: refreshTokenRequest.clientID, scopes: scopes)
             } catch ScopeError.invalid {
-                return try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidScope,
+                return try tokenResponseGenerator.createResponse(req, error: OAuthResponseParameters.ErrorType.invalidScope,
                                                                  description: "Request contained an invalid scope")
             } catch ScopeError.unknown {
-                return try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidScope,
+                return try tokenResponseGenerator.createResponse(req, error: OAuthResponseParameters.ErrorType.invalidScope,
                                                                  description: "Request contained an unknown scope")
             }
 
             if let tokenScopes = refreshTokenRequest.refreshToken.scopes {
                 for scope in scopes {
                     if !tokenScopes.contains(scope) {
-                        return try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidScope,
+                        return try tokenResponseGenerator.createResponse(req, error: OAuthResponseParameters.ErrorType.invalidScope,
                                                                          description: "Request contained elevated scopes")
                     }
                 }
             } else {
-                return try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidScope,
+                return try tokenResponseGenerator.createResponse(req, error: OAuthResponseParameters.ErrorType.invalidScope,
                                                                  description: "Request contained elevated scopes")
             }
 
@@ -57,19 +57,19 @@ struct RefreshTokenHandler {
                                                                 userID: refreshTokenRequest.refreshToken.userID,
                                                                 scopes: scopesRequested, expiryTime: expiryTime)
 
-        return try tokenResponseGenerator.createResponse(accessToken: accessToken, refreshToken: nil,
+        return try tokenResponseGenerator.createResponse(req, accessToken: accessToken, refreshToken: nil,
                                                          expiresIn: expiryTime, scope: scopesString)
     }
 
     private func validateRefreshTokenRequest(_ req: Request) throws -> (EventLoopFuture<Response>?, RefreshTokenRequest?) {
         guard let clientID: String = req.query[OAuthRequestParameters.clientID] else {
-            let errorResponse = try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidRequest,
+            let errorResponse = try tokenResponseGenerator.createResponse(req, error: OAuthResponseParameters.ErrorType.invalidRequest,
                                                                           description: "Request was missing the 'client_id' parameter")
             return (errorResponse, nil)
         }
 
         guard let clientSecret: String = req.query[OAuthRequestParameters.clientSecret] else {
-            let errorResponse = try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidRequest,
+            let errorResponse = try tokenResponseGenerator.createResponse(req, error: OAuthResponseParameters.ErrorType.invalidRequest,
                                                                           description: "Request was missing the 'client_secret' parameter")
             return (errorResponse, nil)
         }
@@ -78,26 +78,26 @@ struct RefreshTokenHandler {
             try clientValidator.authenticateClient(clientID: clientID, clientSecret: clientSecret,
                                                    grantType: nil, checkConfidentialClient: true)
         } catch ClientError.unauthorized {
-            let errorResponse = try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidClient,
+            let errorResponse = try tokenResponseGenerator.createResponse(req, error: OAuthResponseParameters.ErrorType.invalidClient,
                                                                           description: "Request had invalid client credentials",
                                                                           status: .unauthorized)
             return (errorResponse, nil)
         } catch ClientError.notConfidential {
             let errorDescription = "You are not authorized to use the Client Credentials grant type"
-            let errorResponse = try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.unauthorizedClient,
+            let errorResponse = try tokenResponseGenerator.createResponse(req, error: OAuthResponseParameters.ErrorType.unauthorizedClient,
                                                                           description: errorDescription)
             return (errorResponse, nil)
         }
 
         guard let refreshTokenString: String = req.query[OAuthRequestParameters.refreshToken] else {
-            let errorResponse = try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidRequest,
+            let errorResponse = try tokenResponseGenerator.createResponse(req, error: OAuthResponseParameters.ErrorType.invalidRequest,
                                                                           description: "Request was missing the 'refresh_token' parameter")
             return (errorResponse, nil)
         }
 
         guard let refreshToken = tokenManager.getRefreshToken(refreshTokenString),
             tokenAuthenticator.validateRefreshToken(refreshToken, clientID: clientID) else {
-                let errorResponse = try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidGrant,
+                let errorResponse = try tokenResponseGenerator.createResponse(req, error: OAuthResponseParameters.ErrorType.invalidGrant,
                                                                               description: "The refresh token is invalid")
                 return (errorResponse, nil)
         }

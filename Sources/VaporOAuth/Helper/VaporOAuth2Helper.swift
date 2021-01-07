@@ -13,27 +13,27 @@ public final class VaporOAuth2Helper {
         req.storage[VaporOAuth2HelperKey] = helper
     }
 
-    let oauthHelper: OAuthHelper
+    // let oauthHelper: OAuthHelper
 
     init(req: Request, provider: OAuth2Provider?) {
-        self.oauthHelper = LocalOAuthHelper(req: req, tokenAuthenticator: provider?.tokenHandler.tokenAuthenticator,
-                                            userManager: provider?.userManager, tokenManager: provider?.tokenManager)
+        // self.oauthHelper = LocalOAuthHelper(req: req, tokenAuthenticator: provider?.tokenHandler.tokenAuthenticator,
+        //                                     userManager: provider?.userManager, tokenManager: provider?.tokenManager)
     }
 
     init(req: Request, tokenIntrospectionEndpoint: String, client: Client,
          resourceServerUsername: String, resourceServerPassword: String) {
-        self.oauthHelper = RemoteOAuthHelper(req: req, tokenIntrospectionEndpoint: tokenIntrospectionEndpoint,
-                                             client: client, resourceServerUsername: resourceServerUsername,
-                                             resourceServerPassword: resourceServerPassword)
+        // self.oauthHelper = RemoteOAuthHelper(req: req, tokenIntrospectionEndpoint: tokenIntrospectionEndpoint,
+        //                                      client: client, resourceServerUsername: resourceServerUsername,
+        //                                      resourceServerPassword: resourceServerPassword)
     }
 
-    public func assertScopes(_ req: Request, scopes: [String]?) -> EventLoopFuture<Void> {
-        return oauthHelper.assertScopes(req, scopes: scopes)
-    }
+    // public func assertScopes(_ req: Request, scopes: [String]?) -> EventLoopFuture<Void> {
+    //     return oauthHelper.assertScopes(req, scopes: scopes)
+    // }
 
-    public func user(_ req: Request) throws -> EventLoopFuture<OAuthUser> {
-        return try oauthHelper.user(req)
-    }
+    // public func user(_ req: Request) throws -> EventLoopFuture<OAuthUser> {
+    //     return try oauthHelper.user(req)
+    // }
 }
 
 extension Request {
