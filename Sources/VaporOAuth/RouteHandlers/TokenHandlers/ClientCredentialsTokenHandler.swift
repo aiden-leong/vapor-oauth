@@ -7,13 +7,13 @@ struct ClientCredentialsTokenHandler {
     let tokenManager: TokenManager
     let tokenResponseGenerator: TokenResponseGenerator
 
-    func handleClientCredentialsTokenRequest(_ request: Request) throws -> Response {
-        guard let clientID: String = request.query[OAuthRequestParameters.clientID] else {
+    func handleClientCredentialsTokenRequest(_ req: Request) throws -> EventLoopFuture<Response> {
+        guard let clientID: String = req.query[OAuthRequestParameters.clientID] else {
             return try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidRequest,
                                                              description: "Request was missing the 'client_id' parameter")
         }
 
-        guard let clientSecret: String = request.query[OAuthRequestParameters.clientSecret] else {
+        guard let clientSecret: String = req.query[OAuthRequestParameters.clientSecret] else {
             return try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidRequest,
                                                              description: "Request was missing the 'client_secret' parameter")
         }
@@ -29,7 +29,7 @@ struct ClientCredentialsTokenHandler {
                                                              description: "You are not authorized to use the Client Credentials grant type")
         }
 
-        let scopeString: String? = request.query[OAuthRequestParameters.scope]
+        let scopeString: String? = req.query[OAuthRequestParameters.scope]
         if let scopes = scopeString {
             do {
                 try scopeValidator.validateScope(clientID: clientID, scopes: scopes.components(separatedBy: " "))

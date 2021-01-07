@@ -224,7 +224,7 @@ class ImplicitGrantTests: XCTestCase {
         let denyResponse = try getImplicitGrantResponse(approve: false)
         
         XCTAssertEqual(denyResponse.status, .seeOther)
-        XCTAssertEqual(denyResponse.headers[.location], "\(testRedirectURIString)?error=access_denied&error_description=user+denied+the+request")
+        XCTAssertEqual(denyResponse.headers[.location], "\(testRedirectURIString)?error=access_denied&error_description=user+denied+the+req")
     }
     
     func testThatTheStateIsReturnedIfUserDoesNotAuthorizeApplication() throws {
@@ -232,7 +232,7 @@ class ImplicitGrantTests: XCTestCase {
         let authorizationDenyResponse = try getImplicitGrantResponse(approve: false, state: state)
         
         XCTAssertEqual(authorizationDenyResponse.status, .seeOther)
-        XCTAssertEqual(authorizationDenyResponse.headers[.location], "\(testRedirectURIString)?error=access_denied&error_description=user+denied+the+request&state=\(state)")
+        XCTAssertEqual(authorizationDenyResponse.headers[.location], "\(testRedirectURIString)?error=access_denied&error_description=user+denied+the+req&state=\(state)")
     }
     
     func testThatRedirectURICanBeConfiguredIfUserDoesNotAuthorizeApplication() throws {
@@ -244,7 +244,7 @@ class ImplicitGrantTests: XCTestCase {
         let authorizationDenyResponse = try getImplicitGrantResponse(approve: false, clientID: clientID, redirectURI: redirectURI)
         
         XCTAssertEqual(authorizationDenyResponse.status, .seeOther)
-        XCTAssertEqual(authorizationDenyResponse.headers[.location], "\(redirectURI)?error=access_denied&error_description=user+denied+the+request")
+        XCTAssertEqual(authorizationDenyResponse.headers[.location], "\(redirectURI)?error=access_denied&error_description=user+denied+the+req")
     }
     
     func testThatAuthorizationApprovalMustBeSentInPostRequest() throws {

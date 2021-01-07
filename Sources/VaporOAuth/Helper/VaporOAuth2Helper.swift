@@ -6,33 +6,33 @@ struct VaporOAuth2HelperKey: StorageKey {
 
 public final class VaporOAuth2Helper {
 
-    public static func setup(for request: Request, tokenIntrospectionEndpoint: String, client: String,
+    public static func setup(for req: Request, tokenIntrospectionEndpoint: String, client: Client,
                              resourceServerUsername: String, resourceServerPassword: String) {
-        let helper = VaporOAuth2Helper(request: request, tokenIntrospectionEndpoint: tokenIntrospectionEndpoint, client: client,
+        let helper = VaporOAuth2Helper(req: req, tokenIntrospectionEndpoint: tokenIntrospectionEndpoint, client: client,
                             resourceServerUsername: resourceServerUsername, resourceServerPassword: resourceServerPassword)
-        request.storage[VaporOAuth2HelperKey] = helper
+        req.storage[VaporOAuth2HelperKey] = helper
     }
 
     let oauthHelper: OAuthHelper
 
-    init(request: Request, provider: OAuth2Provider?) {
-        self.oauthHelper = LocalOAuthHelper(request: request, tokenAuthenticator: provider?.tokenHandler.tokenAuthenticator,
+    init(req: Request, provider: OAuth2Provider?) {
+        self.oauthHelper = LocalOAuthHelper(req: req, tokenAuthenticator: provider?.tokenHandler.tokenAuthenticator,
                                             userManager: provider?.userManager, tokenManager: provider?.tokenManager)
     }
 
-    init(request: Request, tokenIntrospectionEndpoint: String, client: String,
+    init(req: Request, tokenIntrospectionEndpoint: String, client: Client,
          resourceServerUsername: String, resourceServerPassword: String) {
-        self.oauthHelper = RemoteOAuthHelper(request: request, tokenIntrospectionEndpoint: tokenIntrospectionEndpoint,
+        self.oauthHelper = RemoteOAuthHelper(req: req, tokenIntrospectionEndpoint: tokenIntrospectionEndpoint,
                                              client: client, resourceServerUsername: resourceServerUsername,
                                              resourceServerPassword: resourceServerPassword)
     }
 
-    public func assertScopes(_ scopes: [String]?) throws {
-        try oauthHelper.assertScopes(scopes)
+    public func assertScopes(_ req: Request, scopes: [String]?) -> EventLoopFuture<Void> {
+        return oauthHelper.assertScopes(req, scopes: scopes)
     }
 
-    public func user() throws -> OAuthUser {
-        return try oauthHelper.user()
+    public func user(_ req: Request) throws -> EventLoopFuture<OAuthUser> {
+        return try oauthHelper.user(req)
     }
 }
 
@@ -42,7 +42,7 @@ extension Request {
             return existing
         }
 
-        let helper = VaporOAuth2Helper(request: self, provider: Request.oauthProvider)
+        let helper = VaporOAuth2Helper(req: self, provider: Request.oauthProvider)
         storage[VaporOAuth2HelperKey] = helper
 
         return helper
@@ -52,25 +52,19 @@ extension Request {
 }
 
 extension Request {
-    func getOAuthToken() throws -> String {
-        guard let authHeader = headers[.authorization] else {
-            throw Abort(.forbidden)
-        }
+    func getOAuthToken(_ req: Request) -> EventLoopFuture<String> {
+        let authHeader = headers[.authorization][0]
 
         guard authHeader.lowercased().hasPrefix("bearer ") else {
-            throw Abort(.forbidden)
+            return req.eventLoop.makeFailedFuture(Abort(.forbidden))
         }
 
-        #if swift(>=4)
         let token = String(authHeader[authHeader.index(authHeader.startIndex, offsetBy: 7)...])
-        #else
-        let token = authHeader.substring(from: authHeader.index(authHeader.startIndex, offsetBy: 7))
-        #endif
 
         guard !token.isEmpty else {
-            throw Abort(.forbidden)
+            return req.eventLoop.makeFailedFuture(Abort(.forbidden))
         }
 
-        return token
+        return req.eventLoop.future(token)
     }
 }

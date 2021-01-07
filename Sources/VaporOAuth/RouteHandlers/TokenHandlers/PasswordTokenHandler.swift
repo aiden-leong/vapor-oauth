@@ -9,25 +9,25 @@ struct PasswordTokenHandler {
     let tokenManager: TokenManager
     let tokenResponseGenerator: TokenResponseGenerator
 
-    func handlePasswordTokenRequest(_ request: Request) throws -> Response {
-        guard let username: String = request.query[OAuthRequestParameters.usernname] else {
+    func handlePasswordTokenRequest(_ req: Request) throws -> EventLoopFuture<Response> {
+        guard let username: String = req.query[OAuthRequestParameters.usernname] else {
             return try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidRequest,
                                                              description: "Request was missing the 'username' parameter")
         }
 
-        guard let password: String = request.query[OAuthRequestParameters.password] else {
+        guard let password: String = req.query[OAuthRequestParameters.password] else {
             return try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidRequest,
                                                              description: "Request was missing the 'password' parameter")
         }
 
-        guard let clientID: String = request.query[OAuthRequestParameters.clientID] else {
+        guard let clientID: String = req.query[OAuthRequestParameters.clientID] else {
             return try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidRequest,
                                                              description: "Request was missing the 'client_id' parameter")
         }
 
         do {
             try clientValidator.authenticateClient(clientID: clientID,
-                                                   clientSecret: request.query[OAuthRequestParameters.clientSecret],
+                                                   clientSecret: req.query[OAuthRequestParameters.clientSecret],
                                                    grantType: .password)
         } catch ClientError.unauthorized {
             return try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidClient,
@@ -37,7 +37,7 @@ struct PasswordTokenHandler {
                                                              description: "Password Credentials grant is not allowed")
         }
 
-        let scopeString: String? = request.query[OAuthRequestParameters.scope]
+        let scopeString: String? = req.query[OAuthRequestParameters.scope]
 
         if let scopes = scopeString {
             do {

@@ -2,54 +2,64 @@ import Vapor
 
 struct LocalOAuthHelper: OAuthHelper {
 
-    weak var request: Request?
+    weak var req: Request?
     let tokenAuthenticator: TokenAuthenticator?
     let userManager: UserManager?
     let tokenManager: TokenManager?
 
-    func assertScopes(_ scopes: [String]?) throws {
+    func assertScopes(_ req: Request, scopes: [String]?) -> EventLoopFuture<Void> {
         guard let tokenAuthenticator = tokenAuthenticator else {
-            throw Abort(.forbidden)
+            return req.eventLoop.makeFailedFuture(Abort(.forbidden))
         }
 
-        let accessToken = try getToken()
-
-        guard tokenAuthenticator.validateAccessToken(accessToken, requiredScopes: scopes) else {
-            throw Abort(.unauthorized)
+        return getToken(req).flatMap { token in
+            guard tokenAuthenticator.validateAccessToken(token, requiredScopes: scopes) else {
+                return req.eventLoop.makeFailedFuture(Abort(.unauthorized))
+            }
+            return req.eventLoop.future() 
         }
+
+        
     }
 
-    func user() throws -> OAuthUser {
+    func user(_ req: Request) -> EventLoopFuture<OAuthUser> {
         guard let userManager = userManager else {
-            throw Abort(.forbidden)
+            return req.eventLoop.makeFailedFuture(Abort(.forbidden))
         }
 
-        let token = try getToken()
-
-        guard let userID = token.userID else {
-            throw Abort(.unauthorized)
-        }
-
-        guard let user = userManager.getUser(userID: userID) else {
-            throw Abort(.unauthorized)
-        }
-
-        return user
+        return getToken(req)
+            .flatMap { token -> EventLoopFuture<UUID> in
+                guard let userID = token.userID else {
+                    return req.eventLoop.makeFailedFuture(Abort(.unauthorized))
+                }
+                return req.eventLoop.future(userID)
+            }
+            .flatMap { userID in
+                guard let user = userManager.getUser(userID: userID) else {
+                    return req.eventLoop.makeFailedFuture(Abort(.unauthorized))
+                }
+                return req.eventLoop.future(user)
+            }
     }
 
-    private func getToken() throws -> AccessToken {
-        guard let tokenManager = tokenManager, let token = try request?.getOAuthToken() else {
-            throw Abort(.forbidden)
+    private func getToken(_ req: Request) -> EventLoopFuture<AccessToken> {
+        guard let tokenManager = tokenManager else {
+            return req.eventLoop.makeFailedFuture(Abort(.forbidden))
         }
 
-        guard let accessToken = tokenManager.getAccessToken(token) else {
-            throw Abort(.unauthorized)
-        }
-
-        guard accessToken.expiryTime >= Date() else {
-            throw Abort(.unauthorized)
-        }
-
-        return accessToken
+        return req.getOAuthToken(req)
+                .flatMap { token -> EventLoopFuture<AccessToken> in
+                    guard let accessToken = tokenManager.getAccessToken(token) else {
+                        return req.eventLoop.makeFailedFuture(Abort(.unauthorized))
+                    }
+                    return req.eventLoop.future(accessToken)
+                }
+                .flatMap { accessToken in
+                    if (accessToken.expiryTime >= Date()) {
+                        return req.eventLoop.future(accessToken)
+                    } else {
+                        return req.eventLoop.makeFailedFuture(Abort(.unauthorized))
+                    }
+                }
     }
 }

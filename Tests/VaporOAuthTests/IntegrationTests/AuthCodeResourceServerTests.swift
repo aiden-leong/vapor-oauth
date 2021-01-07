@@ -379,12 +379,12 @@ struct TestResourceController {
         protected.get("user", handler: getOAuthUser)
     }
     
-    func protectedHandler(request: Request) throws -> String {
+    func protectedHandler(req: Request) throws -> String {
         return "PROTECTED"
     }
     
-    func getOAuthUser(request: Request) throws -> String {
-        let user: OAuthUser = try request.oauth.user()
+    func getOAuthUser(req: Request) throws -> String {
+        let user: OAuthUser = try req.oauth.user()
         var json = JSON()
         try json.set("userID", user.id)
         try json.set("email", user.emailAddress)
@@ -406,12 +406,12 @@ struct RemoteResourceController {
         protected.get("user", handler: getOAuthUser)
     }
     
-    func protectedHandler(request: Request) throws -> String {
+    func protectedHandler(req: Request) throws -> String {
         return "PROTECTED"
     }
     
-    func getOAuthUser(request: Request) throws -> String {
-        let user: OAuthUser = try request.oauth.user()
+    func getOAuthUser(req: Request) throws -> String {
+        let user: OAuthUser = try req.oauth.user()
         var json = JSON()
         try json.set("userID", user.id)
         try json.set("email", user.emailAddress)

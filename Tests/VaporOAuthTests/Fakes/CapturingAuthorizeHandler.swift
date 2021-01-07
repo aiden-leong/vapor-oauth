@@ -4,7 +4,7 @@ import URI
 
 class CapturingAuthoriseHandler: AuthorizeHandler {
 
-    private(set) var request: Request?
+    private(set) var req: Request?
     private(set) var responseType: String?
     private(set) var clientID: String?
     private(set) var redirectURI: URI?
@@ -12,8 +12,8 @@ class CapturingAuthoriseHandler: AuthorizeHandler {
     private(set) var state: String?
     private(set) var csrfToken: String?
     
-    func handleAuthorizationRequest(_ request: Request, authorizationRequestObject: AuthorizationRequestObject) throws -> String {
-        self.request = request
+    func handleAuthorizationRequest(_ req: Request, authorizationRequestObject: AuthorizationRequestObject) throws -> String {
+        self.req = req
         self.responseType = authorizationRequestObject.responseType
         self.clientID = authorizationRequestObject.clientID
         self.redirectURI = authorizationRequestObject.redirectURI

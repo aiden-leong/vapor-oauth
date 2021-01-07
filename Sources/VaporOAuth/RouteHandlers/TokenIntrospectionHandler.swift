@@ -3,6 +3,7 @@ import Vapor
 struct OAuthResponse: Codable {
     var error: String?
     var errorDescription: String?
+    var active: String?
 }
 
 struct TokenIntrospectionHandler {
@@ -41,8 +42,7 @@ struct TokenIntrospectionHandler {
 
     func createTokenResponse(active: Bool, expiryDate: Date?, clientID: String?, scopes: String? = nil,
                              user: OAuthUser? = nil) throws -> Response {
-        var json = JSON()
-        try json.set(OAuthResponseParameters.active, active)
+        var oauthResponse = OAuthResponse(active: active)
 
         if let clientID = clientID {
             try json.set(OAuthResponseParameters.clientID, clientID)

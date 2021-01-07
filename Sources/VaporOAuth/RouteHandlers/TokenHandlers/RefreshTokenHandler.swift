@@ -8,19 +8,19 @@ struct RefreshTokenHandler {
     let tokenAuthenticator: TokenAuthenticator
     let tokenResponseGenerator: TokenResponseGenerator
 
-    func handleRefreshTokenRequest(_ request: Request) throws -> Response {
+    func handleRefreshTokenRequest(_ req: Request) throws -> EventLoopFuture<Response> {
 
-        let (errorResponseReturned, refreshTokenRequestReturned) = try validateRefreshTokenRequest(request)
+        let (errorResponseReturned, refreshTokenRequestReturned) = try validateRefreshTokenRequest(req)
 
         if let errorResponse = errorResponseReturned {
             return errorResponse
         }
 
         guard let refreshTokenRequest = refreshTokenRequestReturned else {
-            throw Abort(.internalServerError)
+            return req.eventLoop.makeFailedFuture(Abort(.internalServerError))
         }
 
-        let scopesString: String? = request.query[OAuthRequestParameters.scope]
+        let scopesString: String? = req.query[OAuthRequestParameters.scope]
         var scopesRequested = scopesString?.components(separatedBy: " ")
 
         if let scopes = scopesRequested {
@@ -61,14 +61,14 @@ struct RefreshTokenHandler {
                                                          expiresIn: expiryTime, scope: scopesString)
     }
 
-    private func validateRefreshTokenRequest(_ request: Request) throws -> (Response?, RefreshTokenRequest?) {
-        guard let clientID: String = request.query[OAuthRequestParameters.clientID] else {
+    private func validateRefreshTokenRequest(_ req: Request) throws -> (EventLoopFuture<Response>?, RefreshTokenRequest?) {
+        guard let clientID: String = req.query[OAuthRequestParameters.clientID] else {
             let errorResponse = try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidRequest,
                                                                           description: "Request was missing the 'client_id' parameter")
             return (errorResponse, nil)
         }
 
-        guard let clientSecret: String = request.query[OAuthRequestParameters.clientSecret] else {
+        guard let clientSecret: String = req.query[OAuthRequestParameters.clientSecret] else {
             let errorResponse = try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidRequest,
                                                                           description: "Request was missing the 'client_secret' parameter")
             return (errorResponse, nil)
@@ -89,7 +89,7 @@ struct RefreshTokenHandler {
             return (errorResponse, nil)
         }
 
-        guard let refreshTokenString: String = request.query[OAuthRequestParameters.refreshToken] else {
+        guard let refreshTokenString: String = req.query[OAuthRequestParameters.refreshToken] else {
             let errorResponse = try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidRequest,
                                                                           description: "Request was missing the 'refresh_token' parameter")
             return (errorResponse, nil)

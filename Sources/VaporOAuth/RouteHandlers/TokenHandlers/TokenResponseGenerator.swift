@@ -11,14 +11,14 @@ struct TokenResponse: Codable {
 }
 
 struct TokenResponseGenerator {
-    func createResponse(error: String, description: String, status: HTTPStatus = .badRequest) throws -> Response {
+    func createResponse(error: String, description: String, status: HTTPStatus = .badRequest) throws -> EventLoopFuture<Response> {
         let tokenResponse = TokenResponse(error: error, errorDescription: description)
 
         return try createResponseForToken(status: status, tokenResponse: tokenResponse)
     }
 
     func createResponse(accessToken: AccessToken, refreshToken: RefreshToken?,
-                        expiresIn: Int, scope: String?) throws -> Response {
+                        expiresIn: Int, scope: String?) throws -> EventLoopFuture<Response> {
 
         var tokenResponse = TokenResponse(tokenType: "bearer", expiresIn: expiresIn, accessToken: accessToken.tokenString)
 
@@ -33,7 +33,7 @@ struct TokenResponseGenerator {
         return try createResponseForToken(status: .ok, tokenResponse: tokenResponse)
     }
 
-    private func createResponseForToken(status: HTTPStatus, tokenResponse: TokenResponse) throws -> Response {
+    private func createResponseForToken(status: HTTPStatus, tokenResponse: TokenResponse) throws -> EventLoopFuture<Response> {
         let encoder = JSONEncoder()
         encoder.outputFormatting = .prettyPrinted
         let data = try! encoder.encode(tokenResponse)

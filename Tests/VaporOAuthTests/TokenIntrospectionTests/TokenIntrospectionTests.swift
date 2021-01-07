@@ -212,22 +212,22 @@ class TokenIntrospectionTests: XCTestCase {
     
     // Auth Header is brokenhands-users:users Base64 encoded
     func getInfoResponse(token: String? = "ABDEFGHIJKLMNO01234567890", authHeader: String? = "YnJva2VuaGFuZHMtdXNlcnM6dXNlcnM=") throws -> Response {
-        let request = Request(method: .post, uri: "/oauth/token_info")
+        let req = Request(method: .post, uri: "/oauth/token_info")
         
         // TODO - try Form URL encoded
         var json = JSON()
         
         if let authHeader = authHeader {
-            request.headers[.authorization] = "Basic \(authHeader)"
+            req.headers[.authorization] = "Basic \(authHeader)"
         }
         
         if let token = token {
             try json.set("token", token)
         }
         
-        request.json = json
+        req.json = json
         
-        let response = try drop.respond(to: request)
+        let response = try drop.respond(to: req)
         return response
     }
 

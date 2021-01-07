@@ -5,16 +5,16 @@ struct AuthorizeGetHandler {
     let authorizeHandler: AuthorizeHandler
     let clientValidator: ClientValidator
 
-    func handleRequest(request: Request) throws -> Response {
+    func handleRequest(req: Request) throws -> Response {
 
-        let (errorResponse, createdAuthRequestObject) = try validateRequest(request)
+        let (errorResponse, createdAuthRequestObject) = try validateRequest(req)
 
         if let errorResponseReturned = errorResponse {
             return errorResponseReturned
         }
 
         guard let authRequestObject = createdAuthRequestObject else {
-            throw Abort(.internalServerError)
+            req.eventLoop.makeFailedFuture(Abort(.internalServerError))
         }
 
         do {
@@ -27,7 +27,7 @@ struct AuthorizeGetHandler {
             return try authorizeHandler.handleAuthorizationError(.invalidRedirectURI)
         } catch ScopeError.unknown {
             return createErrorResponse(
-                    request: request,
+                    req: req,
                     redirectURI: authRequestObject.redirectURIString,
                     errorType: OAuthResponseParameters.ErrorType.invalidScope,
                     errorDescription: "scope+is+unknown",
@@ -35,7 +35,7 @@ struct AuthorizeGetHandler {
             )
         } catch ScopeError.invalid {
             return createErrorResponse(
-                    request: request,
+                    req: req,
                     redirectURI: authRequestObject.redirectURIString,
                     errorType: OAuthResponseParameters.ErrorType.invalidScope,
                     errorDescription: "scope+is+invalid",
@@ -43,7 +43,7 @@ struct AuthorizeGetHandler {
             )
         } catch AuthorizationError.confidentialClientTokenGrant {
             return createErrorResponse(
-                    request: request,
+                    req: req,
                     redirectURI: authRequestObject.redirectURIString,
                     errorType: OAuthResponseParameters.ErrorType.unauthorizedClient,
                     errorDescription: "token+grant+disabled+for+confidential+clients",
@@ -54,10 +54,10 @@ struct AuthorizeGetHandler {
         }
 
         let redirectURI = URIParser.shared.parse(bytes: authRequestObject.redirectURIString.makeBytes())
-        let csrfToken = try Random.bytes(count: 32).hexString
+        let csrfToken = Random.bytes(count: 32).hexString
 
-        guard let session = request.session else {
-            throw Abort(.badRequest)
+        guard let session = req.session else {
+            req.eventLoop.makeFailedFuture(Abort(.badRequest))
         }
 
         try session.data.set(SessionData.csrfToken, csrfToken)
@@ -66,31 +66,31 @@ struct AuthorizeGetHandler {
                 scope: authRequestObject.scopes, state: authRequestObject.state,
                 csrfToken: csrfToken)
 
-        return try authorizeHandler.handleAuthorizationRequest(request, authorizationRequestObject: authorizationRequestObject)
+        return try authorizeHandler.handleAuthorizationRequest(req, authorizationRequestObject: authorizationRequestObject)
     }
 
-    private func validateRequest(_ request: Request) throws -> (Response?, AuthorizationGetRequestObject?) {
-        guard let clientID: String = request.query[OAuthRequestParameters.clientID] else {
+    private func validateRequest(_ req: Request) throws -> (Response?, AuthorizationGetRequestObject?) {
+        guard let clientID: String = req.query[OAuthRequestParameters.clientID] else {
             return (try authorizeHandler.handleAuthorizationError(.invalidClientID), nil)
         }
 
-        guard let redirectURIString: String = request.query[OAuthRequestParameters.redirectURI] else {
+        guard let redirectURIString: String = req.query[OAuthRequestParameters.redirectURI] else {
             return (try authorizeHandler.handleAuthorizationError(.invalidRedirectURI), nil)
         }
 
         let scopes: [String]
 
-        if let scopeQuery: String = request.query[OAuthRequestParameters.scope] {
+        if let scopeQuery: String = req.query[OAuthRequestParameters.scope] {
             scopes = scopeQuery.components(separatedBy: " ")
         } else {
             scopes = []
         }
 
-        let state: String = request.query[OAuthRequestParameters.state]
+        let state: String = req.query[OAuthRequestParameters.state]
 
-        guard let responseType: String = request.query[OAuthRequestParameters.responseType] else {
+        guard let responseType: String = req.query[OAuthRequestParameters.responseType] else {
             let errorResponse = createErrorResponse(
-                    request: request,
+                    req: req,
                     redirectURI: redirectURIString,
                     errorType: OAuthResponseParameters.ErrorType.invalidRequest,
                     errorDescription: "Request+was+missing+the+response_type+parameter",
@@ -101,7 +101,7 @@ struct AuthorizeGetHandler {
 
         guard responseType == ResponseType.code || responseType == ResponseType.token else {
             let errorResponse = createErrorResponse(
-                    request: request,
+                    req: req,
                     redirectURI: redirectURIString,
                     errorType: OAuthResponseParameters.ErrorType.invalidRequest,
                     errorDescription: "invalid+response+type", state: state
@@ -116,7 +116,7 @@ struct AuthorizeGetHandler {
         return (nil, authRequestObject)
     }
 
-    private func createErrorResponse(request: Request, redirectURI: String, errorType: String, errorDescription: String,
+    private func createErrorResponse(req: Request, redirectURI: String, errorType: String, errorDescription: String,
                                      state: String?) -> Response {
         var redirectString = "\(redirectURI)?error=\(errorType)&error_description=\(errorDescription)"
 
@@ -124,7 +124,7 @@ struct AuthorizeGetHandler {
             redirectString += "&state=\(state)"
         }
 
-        return request.redirect(to: redirectURI)
+        return req.redirect(to: redirectURI)
     }
 }
 

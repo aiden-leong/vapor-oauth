@@ -17,8 +17,8 @@ struct AuthorizePostHandler {
     let codeManager: CodeManager
     let clientValidator: ClientValidator
 
-    func handleRequest(request: Request) throws -> Response {
-        let requestObject = try validateAuthPostRequest(request)
+    func handleRequest(req: Request) throws -> Response {
+        let requestObject = try validateAuthPostRequest(req)
         var redirectURI = requestObject.redirectURIBaseString
 
         do {
@@ -27,11 +27,11 @@ struct AuthorizePostHandler {
         } catch is AbortError {
             throw Abort(.forbidden)
         } catch {
-            throw Abort(.badRequest)
+            req.eventLoop.makeFailedFuture(Abort(.badRequest))
         }
 
-        guard request.session.data[SessionData.csrfToken] == requestObject.csrfToken else {
-            throw Abort(.badRequest)
+        guard req.session.data[SessionData.csrfToken] == requestObject.csrfToken else {
+            req.eventLoop.makeFailedFuture(Abort(.badRequest))
         }
 
         if requestObject.approveApplication {
@@ -50,7 +50,7 @@ struct AuthorizePostHandler {
                 redirectURI += "?error=invalid_request&error_description=unknown+response+type"
             }
         } else {
-            redirectURI += "?error=access_denied&error_description=user+denied+the+request"
+            redirectURI += "?error=access_denied&error_description=user+denied+the+req"
         }
 
         if let requestedScopes = requestObject.scopes {
@@ -59,48 +59,48 @@ struct AuthorizePostHandler {
             }
         }
 
-        if let state: String = request.query[OAuthRequestParameters.state] {
+        if let state: String = req.query[OAuthRequestParameters.state] {
             redirectURI += "&state=\(state)"
         }
 
-        return request.redirect(to: redirectURI)
+        return req.redirect(to: redirectURI)
     }
 
-    private func validateAuthPostRequest(_ request: Request) throws -> AuthorizePostRequest {
+    private func validateAuthPostRequest(_ req: Request) throws -> AuthorizePostRequest {
         var user: OAuthUser
         do {
-            user = try request.auth.require(OAuthUser.self)
+            user = try req.auth.require(OAuthUser.self)
         } catch {
-            throw Abort(.unauthorized)
+            req.eventLoop.makeFailedFuture(Abort(.unauthorized))
         }
 
         guard let userID = user.id else {
-            throw Abort(.unauthorized)
+            req.eventLoop.makeFailedFuture(Abort(.unauthorized))
         }
 
-        guard let redirectURIBaseString: String = request.query[OAuthRequestParameters.redirectURI] else {
-            throw Abort(.badRequest)
+        guard let redirectURIBaseString: String = req.query[OAuthRequestParameters.redirectURI] else {
+            req.eventLoop.makeFailedFuture(Abort(.badRequest))
         }
 
-        guard let approveApplication: Bool = request.query[OAuthRequestParameters.applicationAuthorized] else {
-            throw Abort(.badRequest)
+        guard let approveApplication: Bool = req.query[OAuthRequestParameters.applicationAuthorized] else {
+            req.eventLoop.makeFailedFuture(Abort(.badRequest))
         }
 
-        guard let clientID: String = request.query[OAuthRequestParameters.clientID] else {
-            throw Abort(.badRequest)
+        guard let clientID: String = req.query[OAuthRequestParameters.clientID] else {
+            req.eventLoop.makeFailedFuture(Abort(.badRequest))
         }
 
-        guard let responseType: String = request.query[OAuthRequestParameters.responseType] else {
-            throw Abort(.badRequest)
+        guard let responseType: String = req.query[OAuthRequestParameters.responseType] else {
+            req.eventLoop.makeFailedFuture(Abort(.badRequest))
         }
 
-        guard let csrfToken: String = request.query[OAuthRequestParameters.csrfToken] else {
-            throw Abort(.badRequest)
+        guard let csrfToken: String = req.query[OAuthRequestParameters.csrfToken] else {
+            req.eventLoop.makeFailedFuture(Abort(.badRequest))
         }
 
         let scopes: [String]?
 
-        if let scopeQuery: String = request.query[OAuthRequestParameters.scope] {
+        if let scopeQuery: String = req.query[OAuthRequestParameters.scope] {
             scopes = scopeQuery.components(separatedBy: " ")
         } else {
             scopes = nil

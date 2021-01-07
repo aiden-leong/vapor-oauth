@@ -81,7 +81,7 @@ class AuthorizationResponseTests: XCTestCase {
         let authorizationDenyResponse = try getAuthResponse(approve: false)
         
         XCTAssertEqual(authorizationDenyResponse.status, .seeOther)
-        XCTAssertEqual(authorizationDenyResponse.headers[.location], "\(AuthorizationResponseTests.redirectURI)?error=access_denied&error_description=user+denied+the+request")
+        XCTAssertEqual(authorizationDenyResponse.headers[.location], "\(AuthorizationResponseTests.redirectURI)?error=access_denied&error_description=user+denied+the+req")
     }
     
     func testThatTheStateIsReturnedIfUserDoesNotAuthorizeApplication() throws {
@@ -89,7 +89,7 @@ class AuthorizationResponseTests: XCTestCase {
         let authorizationDenyResponse = try getAuthResponse(approve: false, state: state)
         
         XCTAssertEqual(authorizationDenyResponse.status, .seeOther)
-        XCTAssertEqual(authorizationDenyResponse.headers[.location], "\(AuthorizationResponseTests.redirectURI)?error=access_denied&error_description=user+denied+the+request&state=\(state)")
+        XCTAssertEqual(authorizationDenyResponse.headers[.location], "\(AuthorizationResponseTests.redirectURI)?error=access_denied&error_description=user+denied+the+req&state=\(state)")
     }
     
     func testThatRedirectURICanBeConfiguredIfUserDoesNotAuthorizeApplication() throws {
@@ -101,7 +101,7 @@ class AuthorizationResponseTests: XCTestCase {
         let authorizationDenyResponse = try getAuthResponse(approve: false, clientID: clientID, redirectURI: redirectURI)
         
         XCTAssertEqual(authorizationDenyResponse.status, .seeOther)
-        XCTAssertEqual(authorizationDenyResponse.headers[.location], "\(redirectURI)?error=access_denied&error_description=user+denied+the+request")
+        XCTAssertEqual(authorizationDenyResponse.headers[.location], "\(redirectURI)?error=access_denied&error_description=user+denied+the+req")
     }
     
     func testThatAuthorizationApprovalMustBeSentInPostRequest() throws {

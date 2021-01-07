@@ -1,9 +1,9 @@
 import Vapor
 
 public protocol AuthorizeHandler {
-    func handleAuthorizationRequest(_ request: Request,
+    func handleAuthorizationRequest(_ req: Request,
                                     authorizationRequestObject: AuthorizationRequestObject) throws -> String
-    func handleAuthorizationError(_ errorType: AuthorizationError) throws -> String
+    func handleAuthorizationError(_ errorType: AuthorizationError) throws -> Response
 }
 
 public enum AuthorizationError: Error {

@@ -8,25 +8,25 @@ struct AuthCodeTokenHandler {
     let codeValidator = CodeValidator()
     let tokenResponseGenerator: TokenResponseGenerator
 
-    func handleAuthCodeTokenRequest(_ request: Request) throws -> Response {
-        guard let codeString: String = request.query[OAuthRequestParameters.code] else {
+    func handleAuthCodeTokenRequest(_ req: Request) throws -> EventLoopFuture<Response> {
+        guard let codeString: String = req.query[OAuthRequestParameters.code] else {
             return try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidRequest,
                                                              description: "Request was missing the 'code' parameter")
         }
 
-        guard let redirectURI: String = request.query[OAuthRequestParameters.redirectURI] else {
+        guard let redirectURI: String = req.query[OAuthRequestParameters.redirectURI] else {
             return try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidRequest,
                                                              description: "Request was missing the 'redirect_uri' parameter")
         }
 
-        guard let clientID: String = request.query[OAuthRequestParameters.clientID] else {
+        guard let clientID: String = req.query[OAuthRequestParameters.clientID] else {
             return try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidRequest,
                                                              description: "Request was missing the 'client_id' parameter")
         }
 
         do {
             try clientValidator.authenticateClient(clientID: clientID,
-                                                   clientSecret: request.query[OAuthRequestParameters.clientSecret],
+                                                   clientSecret: req.query[OAuthRequestParameters.clientSecret],
                                                    grantType: .authorization)
         } catch {
             return try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidClient,

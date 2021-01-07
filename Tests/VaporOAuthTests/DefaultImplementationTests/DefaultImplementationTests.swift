@@ -64,11 +64,11 @@ class DefaultImplementationTests: XCTestCase {
 
     func testThatEmptyAuthHandlerReturnsEmptyStringWhenHandlingAuthRequest() throws {
         let emptyAuthHandler = EmptyAuthorizationHandler()
-        let request = Request(method: .post, uri: "/oauth/auth/")
+        let req = Request(method: .post, uri: "/oauth/auth/")
         let uri = URIParser.shared.parse(bytes: "https://api.brokenhands.io/callback".makeBytes())
         let authRequestObject = AuthorizationRequestObject(responseType: "token", clientID: "client-ID", redirectURI: uri, scope: ["email"], state: "abcdef", csrfToken: "01234")
 
-        XCTAssertEqual(try emptyAuthHandler.handleAuthorizationRequest(request, authorizationRequestObject: authRequestObject).makeResponse().body.bytes!, "".makeBytes())
+        XCTAssertEqual(try emptyAuthHandler.handleAuthorizationRequest(req, authorizationRequestObject: authRequestObject).makeResponse().body.bytes!, "".makeBytes())
     }
 
     func testThatEmptyCodeManagerReturnsNilWhenGettingCode() {

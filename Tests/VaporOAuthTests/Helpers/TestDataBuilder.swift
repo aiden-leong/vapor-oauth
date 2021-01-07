@@ -38,7 +38,7 @@ class TestDataBuilder
     }
     
     static func getTokenRequestResponse(with drop: Droplet, grantType: String?, clientID: String?, clientSecret: String?, redirectURI: String? = nil, code: String? = nil, scope: String? = nil, username: String? = nil, password: String? = nil, refreshToken: String? = nil) throws -> Response {
-        let request = Request(method: .post, uri: "/oauth/token/")
+        let req = Request(method: .post, uri: "/oauth/token/")
         
         var requestData = Node([:], in: nil)
         
@@ -78,9 +78,9 @@ class TestDataBuilder
             try requestData.set("refresh_token", refreshToken)
         }
         
-        request.formURLEncoded = requestData
+        req.formURLEncoded = requestData
         
-        let response = try drop.respond(to: request)
+        let response = try drop.respond(to: req)
         
         return response
     }

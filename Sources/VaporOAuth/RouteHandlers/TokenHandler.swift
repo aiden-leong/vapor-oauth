@@ -27,7 +27,7 @@ struct TokenHandler {
                                                     tokenResponseGenerator: tokenResponseGenerator)
     }
 
-    func handleRequest(_ req: Request) throws -> Response {
+    func handleRequest(_ req: Request) throws -> EventLoopFuture<Response> {
         guard let grantType: String = req.query[OAuthRequestParameters.grantType] else {
             return try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidRequest,
                                                              description: "Request was missing the 'grant_type' parameter")

@@ -4,13 +4,14 @@ struct ResourceServerAuthenticator {
 
     let resourceServerRetriever: ResourceServerRetriever
 
-    func authenticate(credentials: BasicAuthorization) throws {
+    func authenticate(_ req: Request, credentials: BasicAuthorization) -> EventLoopFuture<Void> {
         guard let resourceServer = resourceServerRetriever.getServer(credentials.username) else {
-            throw Abort(.unauthorized)
+            return req.eventLoop.makeFailedFuture(Abort(.unauthorized))
         }
 
         guard String(bytes: resourceServer.password, encoding: .utf8) == credentials.password else {
-            throw Abort(.unauthorized)
+            return req.eventLoop.makeFailedFuture(Abort(.unauthorized))
         }
+        return req.eventLoop.future()
     }
 }
