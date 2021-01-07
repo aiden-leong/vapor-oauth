@@ -13,5 +13,6 @@ DerivedData/
 .DS_Store
 Package.pins
 Package.resolved
+.idea
 
 # End of https://www.gitignore.io/api/vapor
