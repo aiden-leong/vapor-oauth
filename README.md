@@ -40,7 +40,7 @@ Vapor OAuth can be added to your Vapor add with a simple provider. To get starte
 ```swift
 dependencies: [
     ...,
-    .package(url: "https://github.com/brokenhandsio/vapor-oauth", from: "0.6.0"))
+    .package(url: "https://github.com/brokenhandsio/vapor-oauth", from: "0.6.0"),
 ]
 ```
 
