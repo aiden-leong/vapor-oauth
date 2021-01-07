@@ -1,40 +1,50 @@
-//import Vapor
-//
-//struct TokenResponseGenerator {
-//    func createResponse(error: String, description: String, status: Status = .badRequest) throws -> Response {
-//        var json = JSON()
-//        try json.set(OAuthResponseParameters.error, error)
-//        try json.set(OAuthResponseParameters.errorDescription, description)
-//
-//        return try createResponseForToken(status: status, json: json)
-//    }
-//
-//    func createResponse(accessToken: AccessToken, refreshToken: RefreshToken?,
-//                        expires: Int, scope: String?) throws -> Response {
-//
-//        var json = JSON()
-//        try json.set(OAuthResponseParameters.tokenType, "bearer")
-//        try json.set(OAuthResponseParameters.expires, expires)
-//        try json.set(OAuthResponseParameters.accessToken, accessToken.tokenString)
-//
-//        if let refreshToken = refreshToken {
-//            try json.set(OAuthResponseParameters.refreshToken, refreshToken.tokenString)
-//        }
-//
-//        if let scope = scope {
-//            try json.set(OAuthResponseParameters.scope, scope)
-//        }
-//
-//        return try createResponseForToken(status: .ok, json: json)
-//    }
-//
-//    private func createResponseForToken(status: Status, json: JSON) throws -> Response {
-//        let response = try Response(status: status, json: json)
-//
-//        response.headers[.pragma] = "no-cache"
-//        response.headers[.cacheControl] = "no-store"
-//
-//        return response
-//    }
-//
-//}
+import Vapor
+
+struct TokenResponse: Codable {
+    var error: String?
+    var errorDescription: String?
+    var tokenType: String?
+    var expiresIn: Int?
+    var accessToken: String?
+    var refreshToken: String?
+    var scope: String?
+}
+
+struct TokenResponseGenerator {
+    func createResponse(error: String, description: String, status: HTTPStatus = .badRequest) throws -> Response {
+        let tokenResponse = TokenResponse(error: error, errorDescription: description)
+
+        return try createResponseForToken(status: status, tokenResponse: tokenResponse)
+    }
+
+    func createResponse(accessToken: AccessToken, refreshToken: RefreshToken?,
+                        expiresIn: Int, scope: String?) throws -> Response {
+
+        var tokenResponse = TokenResponse(tokenType: "bearer", expiresIn: expiresIn, accessToken: accessToken.tokenString)
+
+        if let refreshToken = refreshToken {
+            tokenResponse.refreshToken = refreshToken.tokenString
+        }
+
+        if let scope = scope {
+            tokenResponse.scope = scope
+        }
+
+        return try createResponseForToken(status: .ok, tokenResponse: tokenResponse)
+    }
+
+    private func createResponseForToken(status: HTTPStatus, tokenResponse: TokenResponse) throws -> Response {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .prettyPrinted
+        let data = try! encoder.encode(tokenResponse)
+        let jsonString = String(data: data, encoding: .utf8)!
+
+        let response = Response(status: status, body: .init(string: jsonString))
+
+        response.headers.add(name: "Pragma", value: "no-cache")
+        response.headers.add(name: "Cache-Control", value: "no-store")
+
+        return response
+    }
+
+}

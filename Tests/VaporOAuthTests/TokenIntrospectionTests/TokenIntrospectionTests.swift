@@ -70,8 +70,8 @@ class TokenIntrospectionTests: XCTestCase {
         }
         
         XCTAssertEqual(response.status, .badRequest)
-        XCTAssertEqual(responseJSON["error"]?.string, "missing_token")
-        XCTAssertEqual(responseJSON["error_description"]?.string, "The token parameter is required")
+        XCTAssertEqual(responseJSON["error"], "missing_token")
+        XCTAssertEqual(responseJSON["error_description"], "The token parameter is required")
     }
     
     func testCorrectErrorWhenNoAuthorisationSuppliied() throws {
@@ -153,7 +153,7 @@ class TokenIntrospectionTests: XCTestCase {
         
         XCTAssertEqual(response.status, .ok)
         XCTAssertEqual(responseJSON["active"]?.bool, true)
-        XCTAssertEqual(responseJSON["scope"]?.string, "email profile")
+        XCTAssertEqual(responseJSON["scope"], "email profile")
     }
     
     func testCliendIDReturnedInTokenResponse() throws {
@@ -166,7 +166,7 @@ class TokenIntrospectionTests: XCTestCase {
         
         XCTAssertEqual(response.status, .ok)
         XCTAssertEqual(responseJSON["active"]?.bool, true)
-        XCTAssertEqual(responseJSON["client_id"]?.string, clientID)
+        XCTAssertEqual(responseJSON["client_id"], clientID)
     }
     
     func testUsernameReturnedInTokenResponseIfTokenHasAUser() throws {
@@ -187,7 +187,7 @@ class TokenIntrospectionTests: XCTestCase {
         
         XCTAssertEqual(response.status, .ok)
         XCTAssertEqual(responseJSON["active"]?.bool, true)
-        XCTAssertEqual(responseJSON["username"]?.string, username)
+        XCTAssertEqual(responseJSON["username"], username)
     }
     
     func testTokenExpiryReturnedInResponse() throws {

@@ -13,6 +13,6 @@ public final class OAuthUser: Authenticatable, Extendable {
         self.username = username
         self.emailAddress = emailAddress
         self.password = password
-        self.id = userID
+        id = userID
     }
 }

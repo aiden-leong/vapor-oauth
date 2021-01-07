@@ -80,7 +80,7 @@ class AuthorizationCodeTokenTests: XCTestCase {
         }
         
         XCTAssertEqual(response.status, .badRequest)
-        XCTAssertEqual(responseJSON["error"]?.string, "invalid_request")
+        XCTAssertEqual(responseJSON["error"], "invalid_request")
         XCTAssertEqual(responseJSON["error_description"], "Request was missing the 'grant_type' parameter")
         XCTAssertEqual(response.headers[.cacheControl], "no-store")
         XCTAssertEqual(response.headers[.pragma], "no-cache")
@@ -96,8 +96,8 @@ class AuthorizationCodeTokenTests: XCTestCase {
         }
         
         XCTAssertEqual(response.status, .badRequest)
-        XCTAssertEqual(responseJSON["error"]?.string, "unsupported_grant_type")
-        XCTAssertEqual(responseJSON["error_description"]?.string, "This server does not support the '\(grantType)' grant type")
+        XCTAssertEqual(responseJSON["error"], "unsupported_grant_type")
+        XCTAssertEqual(responseJSON["error_description"], "This server does not support the '\(grantType)' grant type")
         XCTAssertEqual(response.headers[.cacheControl], "no-store")
         XCTAssertEqual(response.headers[.pragma], "no-cache")
     }
@@ -111,7 +111,7 @@ class AuthorizationCodeTokenTests: XCTestCase {
         }
         
         XCTAssertEqual(response.status, .badRequest)
-        XCTAssertEqual(responseJSON["error"]?.string, "invalid_request")
+        XCTAssertEqual(responseJSON["error"], "invalid_request")
         XCTAssertEqual(responseJSON["error_description"], "Request was missing the 'code' parameter")
         XCTAssertEqual(response.headers[.cacheControl], "no-store")
         XCTAssertEqual(response.headers[.pragma], "no-cache")
@@ -126,7 +126,7 @@ class AuthorizationCodeTokenTests: XCTestCase {
         }
         
         XCTAssertEqual(response.status, .badRequest)
-        XCTAssertEqual(responseJSON["error"]?.string, "invalid_request")
+        XCTAssertEqual(responseJSON["error"], "invalid_request")
         XCTAssertEqual(responseJSON["error_description"], "Request was missing the 'redirect_uri' parameter")
         XCTAssertEqual(response.headers[.cacheControl], "no-store")
         XCTAssertEqual(response.headers[.pragma], "no-cache")
@@ -141,7 +141,7 @@ class AuthorizationCodeTokenTests: XCTestCase {
         }
         
         XCTAssertEqual(response.status, .badRequest)
-        XCTAssertEqual(responseJSON["error"]?.string, "invalid_request")
+        XCTAssertEqual(responseJSON["error"], "invalid_request")
         XCTAssertEqual(responseJSON["error_description"], "Request was missing the 'client_id' parameter")
         XCTAssertEqual(response.headers[.cacheControl], "no-store")
         XCTAssertEqual(response.headers[.pragma], "no-cache")
@@ -156,7 +156,7 @@ class AuthorizationCodeTokenTests: XCTestCase {
         }
         
         XCTAssertEqual(response.status, .unauthorized)
-        XCTAssertEqual(responseJSON["error"]?.string, "invalid_client")
+        XCTAssertEqual(responseJSON["error"], "invalid_client")
         XCTAssertEqual(responseJSON["error_description"], "Request had invalid client credentials")
         XCTAssertEqual(response.headers[.cacheControl], "no-store")
         XCTAssertEqual(response.headers[.pragma], "no-cache")
@@ -175,7 +175,7 @@ class AuthorizationCodeTokenTests: XCTestCase {
         }
         
         XCTAssertEqual(response.status, .unauthorized)
-        XCTAssertEqual(responseJSON["error"]?.string, "invalid_client")
+        XCTAssertEqual(responseJSON["error"], "invalid_client")
         XCTAssertEqual(responseJSON["error_description"], "Request had invalid client credentials")
         XCTAssertEqual(response.headers[.cacheControl], "no-store")
         XCTAssertEqual(response.headers[.pragma], "no-cache")
@@ -194,7 +194,7 @@ class AuthorizationCodeTokenTests: XCTestCase {
         }
         
         XCTAssertEqual(response.status, .unauthorized)
-        XCTAssertEqual(responseJSON["error"]?.string, "invalid_client")
+        XCTAssertEqual(responseJSON["error"], "invalid_client")
         XCTAssertEqual(responseJSON["error_description"], "Request had invalid client credentials")
         XCTAssertEqual(response.headers[.cacheControl], "no-store")
         XCTAssertEqual(response.headers[.pragma], "no-cache")
@@ -209,7 +209,7 @@ class AuthorizationCodeTokenTests: XCTestCase {
         }
         
         XCTAssertEqual(response.status, .badRequest)
-        XCTAssertEqual(responseJSON["error"]?.string, "invalid_grant")
+        XCTAssertEqual(responseJSON["error"], "invalid_grant")
         XCTAssertEqual(responseJSON["error_description"], "The code provided was invalid or expired, or the redirect URI did not match")
         XCTAssertEqual(response.headers[.cacheControl], "no-store")
         XCTAssertEqual(response.headers[.pragma], "no-cache")
@@ -232,7 +232,7 @@ class AuthorizationCodeTokenTests: XCTestCase {
         }
         
         XCTAssertEqual(response.status, .badRequest)
-        XCTAssertEqual(responseJSON["error"]?.string, "invalid_grant")
+        XCTAssertEqual(responseJSON["error"], "invalid_grant")
         XCTAssertEqual(responseJSON["error_description"], "The code provided was invalid or expired, or the redirect URI did not match")
         XCTAssertEqual(response.headers[.cacheControl], "no-store")
         XCTAssertEqual(response.headers[.pragma], "no-cache")
@@ -251,7 +251,7 @@ class AuthorizationCodeTokenTests: XCTestCase {
         }
         
         XCTAssertEqual(response.status, .badRequest)
-        XCTAssertEqual(responseJSON["error"]?.string, "invalid_grant")
+        XCTAssertEqual(responseJSON["error"], "invalid_grant")
         XCTAssertEqual(responseJSON["error_description"], "The code provided was invalid or expired, or the redirect URI did not match")
         XCTAssertEqual(response.headers[.cacheControl], "no-store")
         XCTAssertEqual(response.headers[.pragma], "no-cache")
@@ -266,7 +266,7 @@ class AuthorizationCodeTokenTests: XCTestCase {
         }
         
         XCTAssertEqual(response.status, .badRequest)
-        XCTAssertEqual(responseJSON["error"]?.string, "invalid_grant")
+        XCTAssertEqual(responseJSON["error"], "invalid_grant")
         XCTAssertEqual(responseJSON["error_description"], "The code provided was invalid or expired, or the redirect URI did not match")
         XCTAssertEqual(response.headers[.cacheControl], "no-store")
         XCTAssertEqual(response.headers[.pragma], "no-cache")
@@ -298,11 +298,11 @@ class AuthorizationCodeTokenTests: XCTestCase {
         XCTAssertEqual(response.status, .ok)
         XCTAssertEqual(response.headers[.cacheControl], "no-store")
         XCTAssertEqual(response.headers[.pragma], "no-cache")
-        XCTAssertEqual(responseJSON["token_type"]?.string, "bearer")
+        XCTAssertEqual(responseJSON["token_type"], "bearer")
         XCTAssertEqual(responseJSON["expires_in"]?.int, 3600)
-        XCTAssertEqual(responseJSON["access_token"]?.string, accessToken)
-        XCTAssertEqual(responseJSON["refresh_token"]?.string, refreshToken)
-        XCTAssertEqual(responseJSON["scope"]?.string, "email create")
+        XCTAssertEqual(responseJSON["access_token"], accessToken)
+        XCTAssertEqual(responseJSON["refresh_token"], refreshToken)
+        XCTAssertEqual(responseJSON["scope"], "email create")
         
         guard let token = fakeTokenManager.getAccessToken(accessToken) else {
             XCTFail()
@@ -324,9 +324,9 @@ class AuthorizationCodeTokenTests: XCTestCase {
             return
         }
         
-        XCTAssertNil(responseJSON["scope"]?.string)
+        XCTAssertNil(responseJSON["scope"])
         
-        guard let accessToken = fakeTokenManager.getAccessToken(responseJSON["access_token"]?.string ?? "") else {
+        guard let accessToken = fakeTokenManager.getAccessToken(responseJSON["access_token"] ?? "") else {
             XCTFail()
             return
         }

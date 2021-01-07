@@ -1,6 +1,6 @@
 import Vapor
 
-class CapturingLogger: LogProtocol {
+class CapturingLogger: Logger {
     
     var enabled: [LogLevel] = LogLevel.all
     

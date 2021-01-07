@@ -134,12 +134,12 @@ class AuthCodeResourceServerTests: XCTestCase {
         
         print("Token response was \(tokenResponse)")
         
-        guard let token = tokenResponse.json?["access_token"]?.string else {
+        guard let token = tokenResponse.json?["access_token"] else {
             XCTFail()
             return
         }
         
-        guard let refreshToken = tokenResponse.json?["refresh_token"]?.string else {
+        guard let refreshToken = tokenResponse.json?["refresh_token"] else {
             XCTFail()
             return
         }
@@ -157,7 +157,7 @@ class AuthCodeResourceServerTests: XCTestCase {
         
         XCTAssertEqual(tokenRefreshResponse.status, .ok)
         
-        guard let newAccessToken = tokenRefreshResponse.json?["access_token"]?.string else {
+        guard let newAccessToken = tokenRefreshResponse.json?["access_token"] else {
             XCTFail()
             return
         }
@@ -170,9 +170,9 @@ class AuthCodeResourceServerTests: XCTestCase {
         
         XCTAssertEqual(userResponse.status, .ok)
         
-        XCTAssertEqual(userResponse.json?["userID"]?.string, userID.string)
-        XCTAssertEqual(userResponse.json?["username"]?.string, username)
-        XCTAssertEqual(userResponse.json?["email"]?.string, email)
+        XCTAssertEqual(userResponse.json?["userID"], userID.string)
+        XCTAssertEqual(userResponse.json?["username"], username)
+        XCTAssertEqual(userResponse.json?["email"], email)
     }
     
     func testAccessingProtectedRouteWithoutHeaderReturns403() throws {
@@ -325,9 +325,9 @@ class AuthCodeResourceServerTests: XCTestCase {
         
         XCTAssertEqual(userResponse.status, .ok)
         
-        XCTAssertEqual(userResponse.json?["userID"]?.string, userID.string)
-        XCTAssertEqual(userResponse.json?["username"]?.string, username)
-        XCTAssertEqual(userResponse.json?["email"]?.string, email)
+        XCTAssertEqual(userResponse.json?["userID"], userID.string)
+        XCTAssertEqual(userResponse.json?["username"], username)
+        XCTAssertEqual(userResponse.json?["email"], email)
 
         let tokenWithWrongScopeString = "jejiofjewojioe"
         let accessTokenWrongScopes = AccessToken(tokenString: tokenWithWrongScopeString, clientID: newClientID, userID: userID, scopes: ["wrong"], expiryTime: Date().addingTimeInterval(60))

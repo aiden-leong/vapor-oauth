@@ -1,5 +1,5 @@
-//import Vapor
-//
-//public protocol ClientRetriever {
-//    func getClient(clientID: String) -> OAuthClient?
-//}
+import Vapor
+
+public protocol ClientRetriever {
+    func getClient(clientID: String) -> OAuthClient?
+}

@@ -78,7 +78,7 @@ class TokenRefreshTests: XCTestCase {
         }
         
         XCTAssertEqual(response.status, .badRequest)
-        XCTAssertEqual(responseJSON["error"]?.string, "invalid_request")
+        XCTAssertEqual(responseJSON["error"], "invalid_request")
         XCTAssertEqual(responseJSON["error_description"], "Request was missing the 'grant_type' parameter")
         XCTAssertEqual(response.headers[.cacheControl], "no-store")
         XCTAssertEqual(response.headers[.pragma], "no-cache")
@@ -94,8 +94,8 @@ class TokenRefreshTests: XCTestCase {
         }
         
         XCTAssertEqual(response.status, .badRequest)
-        XCTAssertEqual(responseJSON["error"]?.string, "unsupported_grant_type")
-        XCTAssertEqual(responseJSON["error_description"]?.string, "This server does not support the '\(grantType)' grant type")
+        XCTAssertEqual(responseJSON["error"], "unsupported_grant_type")
+        XCTAssertEqual(responseJSON["error_description"], "This server does not support the '\(grantType)' grant type")
         XCTAssertEqual(response.headers[.cacheControl], "no-store")
         XCTAssertEqual(response.headers[.pragma], "no-cache")
     }
@@ -109,7 +109,7 @@ class TokenRefreshTests: XCTestCase {
         }
         
         XCTAssertEqual(response.status, .badRequest)
-        XCTAssertEqual(responseJSON["error"]?.string, "invalid_request")
+        XCTAssertEqual(responseJSON["error"], "invalid_request")
         XCTAssertEqual(responseJSON["error_description"], "Request was missing the 'client_id' parameter")
         XCTAssertEqual(response.headers[.cacheControl], "no-store")
         XCTAssertEqual(response.headers[.pragma], "no-cache")
@@ -124,7 +124,7 @@ class TokenRefreshTests: XCTestCase {
         }
         
         XCTAssertEqual(response.status, .unauthorized)
-        XCTAssertEqual(responseJSON["error"]?.string, "invalid_client")
+        XCTAssertEqual(responseJSON["error"], "invalid_client")
         XCTAssertEqual(responseJSON["error_description"], "Request had invalid client credentials")
         XCTAssertEqual(response.headers[.cacheControl], "no-store")
         XCTAssertEqual(response.headers[.pragma], "no-cache")
@@ -139,7 +139,7 @@ class TokenRefreshTests: XCTestCase {
         }
         
         XCTAssertEqual(response.status, .unauthorized)
-        XCTAssertEqual(responseJSON["error"]?.string, "invalid_client")
+        XCTAssertEqual(responseJSON["error"], "invalid_client")
         XCTAssertEqual(responseJSON["error_description"], "Request had invalid client credentials")
         XCTAssertEqual(response.headers[.cacheControl], "no-store")
         XCTAssertEqual(response.headers[.pragma], "no-cache")
@@ -154,7 +154,7 @@ class TokenRefreshTests: XCTestCase {
         }
         
         XCTAssertEqual(response.status, .badRequest)
-        XCTAssertEqual(responseJSON["error"]?.string, "invalid_request")
+        XCTAssertEqual(responseJSON["error"], "invalid_request")
         XCTAssertEqual(responseJSON["error_description"], "Request was missing the 'client_secret' parameter")
         XCTAssertEqual(response.headers[.cacheControl], "no-store")
         XCTAssertEqual(response.headers[.pragma], "no-cache")
@@ -169,7 +169,7 @@ class TokenRefreshTests: XCTestCase {
         }
         
         XCTAssertEqual(response.status, .badRequest)
-        XCTAssertEqual(responseJSON["error"]?.string, "invalid_request")
+        XCTAssertEqual(responseJSON["error"], "invalid_request")
         XCTAssertEqual(responseJSON["error_description"], "Request was missing the 'refresh_token' parameter")
         XCTAssertEqual(response.headers[.cacheControl], "no-store")
         XCTAssertEqual(response.headers[.pragma], "no-cache")
@@ -189,7 +189,7 @@ class TokenRefreshTests: XCTestCase {
         }
         
         XCTAssertEqual(response.status, .badRequest)
-        XCTAssertEqual(responseJSON["error"]?.string, "unauthorized_client")
+        XCTAssertEqual(responseJSON["error"], "unauthorized_client")
         XCTAssertEqual(responseJSON["error_description"], "You are not authorized to use the Client Credentials grant type")
         XCTAssertEqual(response.headers[.cacheControl], "no-store")
         XCTAssertEqual(response.headers[.pragma], "no-cache")
@@ -206,7 +206,7 @@ class TokenRefreshTests: XCTestCase {
         }
         
         XCTAssertEqual(response.status, .badRequest)
-        XCTAssertEqual(responseJSON["error"]?.string, "invalid_grant")
+        XCTAssertEqual(responseJSON["error"], "invalid_grant")
         XCTAssertEqual(responseJSON["error_description"], "The refresh token is invalid")
         XCTAssertEqual(response.headers[.cacheControl], "no-store")
         XCTAssertEqual(response.headers[.pragma], "no-cache")
@@ -226,7 +226,7 @@ class TokenRefreshTests: XCTestCase {
         }
         
         XCTAssertEqual(response.status, .badRequest)
-        XCTAssertEqual(responseJSON["error"]?.string, "invalid_grant")
+        XCTAssertEqual(responseJSON["error"], "invalid_grant")
         XCTAssertEqual(responseJSON["error_description"], "The refresh token is invalid")
         XCTAssertEqual(response.headers[.cacheControl], "no-store")
         XCTAssertEqual(response.headers[.pragma], "no-cache")
@@ -245,10 +245,10 @@ class TokenRefreshTests: XCTestCase {
         XCTAssertEqual(response.status, .ok)
         XCTAssertEqual(response.headers[.cacheControl], "no-store")
         XCTAssertEqual(response.headers[.pragma], "no-cache")
-        XCTAssertEqual(responseJSON["token_type"]?.string, "bearer")
+        XCTAssertEqual(responseJSON["token_type"], "bearer")
         XCTAssertEqual(responseJSON["expires_in"]?.int, 3600)
-        XCTAssertEqual(responseJSON["access_token"]?.string, accessToken)
-        XCTAssertNil(responseJSON["refresh_token"]?.string)
+        XCTAssertEqual(responseJSON["access_token"], accessToken)
+        XCTAssertNil(responseJSON["refresh_token"])
     }
     
     func testCorrectErrorWhenReqeustingScopeApplicationDoesNotHaveAccessTo() throws {
@@ -262,8 +262,8 @@ class TokenRefreshTests: XCTestCase {
         }
 
         XCTAssertEqual(response.status, .badRequest)
-        XCTAssertEqual(responseJSON["error"]?.string, "invalid_scope")
-        XCTAssertEqual(responseJSON["error_description"]?.string, "Request contained an invalid scope")
+        XCTAssertEqual(responseJSON["error"], "invalid_scope")
+        XCTAssertEqual(responseJSON["error_description"], "Request contained an invalid scope")
         XCTAssertEqual(response.headers[.cacheControl], "no-store")
         XCTAssertEqual(response.headers[.pragma], "no-cache")
     }
@@ -279,8 +279,8 @@ class TokenRefreshTests: XCTestCase {
         }
 
         XCTAssertEqual(response.status, .badRequest)
-        XCTAssertEqual(responseJSON["error"]?.string, "invalid_scope")
-        XCTAssertEqual(responseJSON["error_description"]?.string, "Request contained an unknown scope")
+        XCTAssertEqual(responseJSON["error"], "invalid_scope")
+        XCTAssertEqual(responseJSON["error_description"], "Request contained an unknown scope")
         XCTAssertEqual(response.headers[.cacheControl], "no-store")
         XCTAssertEqual(response.headers[.pragma], "no-cache")
     }
@@ -294,8 +294,8 @@ class TokenRefreshTests: XCTestCase {
         }
         
         XCTAssertEqual(response.status, .badRequest)
-        XCTAssertEqual(responseJSON["error"]?.string, "invalid_scope")
-        XCTAssertEqual(responseJSON["error_description"]?.string, "Request contained elevated scopes")
+        XCTAssertEqual(responseJSON["error"], "invalid_scope")
+        XCTAssertEqual(responseJSON["error_description"], "Request contained elevated scopes")
         XCTAssertEqual(response.headers[.cacheControl], "no-store")
         XCTAssertEqual(response.headers[.pragma], "no-cache")
     }
@@ -308,7 +308,7 @@ class TokenRefreshTests: XCTestCase {
             return
         }
         
-        guard let accessTokenString = responseJSON["access_token"]?.string else {
+        guard let accessTokenString = responseJSON["access_token"] else {
             XCTFail()
             return
         }
@@ -321,7 +321,7 @@ class TokenRefreshTests: XCTestCase {
         XCTAssertEqual(accessToken.scopes ?? [], [scope1])
         
         XCTAssertEqual(response.status, .ok)
-        XCTAssertEqual(responseJSON["scope"]?.string, scope1)
+        XCTAssertEqual(responseJSON["scope"], scope1)
         XCTAssertEqual(response.headers[.cacheControl], "no-store")
         XCTAssertEqual(response.headers[.pragma], "no-cache")
         
@@ -343,7 +343,7 @@ class TokenRefreshTests: XCTestCase {
             return
         }
         
-        guard let accessTokenString = responseJSON["access_token"]?.string, let accessToken = fakeTokenManager.getAccessToken(accessTokenString) else {
+        guard let accessTokenString = responseJSON["access_token"], let accessToken = fakeTokenManager.getAccessToken(accessTokenString) else {
             XCTFail()
             return
         }
@@ -367,7 +367,7 @@ class TokenRefreshTests: XCTestCase {
             return
         }
         
-        guard let accessTokenString = responseJSON["access_token"]?.string, let accessToken = fakeTokenManager.getAccessToken(accessTokenString) else {
+        guard let accessTokenString = responseJSON["access_token"], let accessToken = fakeTokenManager.getAccessToken(accessTokenString) else {
             XCTFail()
             return
         }
@@ -394,8 +394,8 @@ class TokenRefreshTests: XCTestCase {
         }
         
         XCTAssertEqual(response.status, .badRequest)
-        XCTAssertEqual(responseJSON["error"]?.string, "invalid_scope")
-        XCTAssertEqual(responseJSON["error_description"]?.string, "Request contained elevated scopes")
+        XCTAssertEqual(responseJSON["error"], "invalid_scope")
+        XCTAssertEqual(responseJSON["error_description"], "Request contained elevated scopes")
         XCTAssertEqual(response.headers[.cacheControl], "no-store")
         XCTAssertEqual(response.headers[.pragma], "no-cache")
     }
@@ -426,7 +426,7 @@ class TokenRefreshTests: XCTestCase {
         
         let response = try getTokenResponse(clientID: clientID, refreshToken: refreshTokenString)
         
-        guard let accessTokenString = response.json?["access_token"]?.string else {
+        guard let accessTokenString = response.json?["access_token"] else {
             XCTFail()
             return
         }
@@ -446,7 +446,7 @@ class TokenRefreshTests: XCTestCase {
         
         let response = try getTokenResponse()
         
-        guard let accessTokenString = response.json?["access_token"]?.string else {
+        guard let accessTokenString = response.json?["access_token"] else {
             XCTFail()
             return
         }
