@@ -11,7 +11,7 @@ public final class Provider: LifecycleHandler {
     let validScopes: [String]?
 //    let resourceServerRetriever: ResourceServerRetriever
 //
-    public init(_ validScopes: [String]?) {
+    public init(validScopes: [String]?) {
         self.validScopes = validScopes
     }
 
