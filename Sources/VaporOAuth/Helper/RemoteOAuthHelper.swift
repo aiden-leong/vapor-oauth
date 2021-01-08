@@ -42,22 +42,30 @@
      }
 
      func user(_ req: Request) -> EventLoopFuture<OAuthUser> {
-//         if remoteTokenResponse == nil {
-//             setupRemoteTokenResponse(req)
-//         }
+         if remoteTokenResponse == nil {
+             return setupRemoteTokenResponse(req)
+                     .flatMap { [self] in
+                         guard let remoteTokenResponse = remoteTokenResponse else {
+                             return req.eventLoop.makeFailedFuture(Abort(.internalServerError))
+                         }
 
-        return setupRemoteTokenResponse(req)
-            .flatMap { [self] in
-                guard let remoteTokenResponse = remoteTokenResponse else {
-                    return req.eventLoop.makeFailedFuture(Abort(.internalServerError))
-                }
+                         guard let user = remoteTokenResponse.user else {
+                             return req.eventLoop.makeFailedFuture(Abort(.unauthorized))
+                         }
 
-                guard let user = remoteTokenResponse.user else {
-                    return req.eventLoop.makeFailedFuture(Abort(.unauthorized))
-                }
+                         return req.eventLoop.future(user)
+                     }
+         } else {
+             guard let remoteTokenResponse = remoteTokenResponse else {
+                 return req.eventLoop.makeFailedFuture(Abort(.internalServerError))
+             }
 
-                return req.eventLoop.future(user)
-            }
+             guard let user = remoteTokenResponse.user else {
+                 return req.eventLoop.makeFailedFuture(Abort(.unauthorized))
+             }
+
+             return req.eventLoop.future(user)
+         }
      }
 
      struct TokenInfoResponse: Content {
