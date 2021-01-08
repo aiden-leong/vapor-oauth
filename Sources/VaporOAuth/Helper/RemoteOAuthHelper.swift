@@ -60,57 +60,54 @@
             }
      }
 
-     struct TokenRequest {
-         var token: String?
+     struct TokenInfoResponse: Content {
+         var active: Bool?
+         var scope: String?
+         var userID: String?
+         var username: String?
+         var email: String?
      }
 
      private func setupRemoteTokenResponse(_ req: Request) -> EventLoopFuture<Void> {
          return req.getOAuthToken(req)
-             .flatMap { token in
-//                 let request = Request(application: req.application, method: .post, url: tokenIntrospectionEndpoint, on: req.eventLoop)
-//                 let tokenRequest = TokenRequest(token: token)
-//                 let headers = HTTPHeaders()
-
-
-//                 let resourceAuthHeader = "\(resourceServerUsername):\(resourceServerPassword)".makeBytes().base64Encoded.makeString()
-//                 tokenRequest.headers[.authorization] = "Basic \(resourceAuthHeader)"
-
-//                 let tokenInfoResponse = try client.respond(to: tokenRequest)
- //        client.post(URI(string: tokenIntrospectionEndpoint)) {
- //            req in
- //
- //        }
-//                 guard let tokenInfoJSON = tokenInfoResponse.json else {
-//                     return req.eventLoop.makeFailedFuture(Abort(.internalServerError))
-//                 }
-//
-//                 guard let tokenActive = tokenInfoJSON[OAuthResponseParameters.active]?.bool, tokenActive else {
-//                     return req.eventLoop.makeFailedFuture(Abort(.unauthorized))
-//                 }
-                return req.eventLoop.future()
+             .flatMap { [self] token in
+                 req.client.post(URI(string: tokenIntrospectionEndpoint)) { req in
+                     // Encode JSON to the request body.
+                     try req.content.encode(["token": token])
+                     let resourceAuthHeader = Data("\(resourceServerUsername):\(resourceServerPassword)".utf8).base64EncodedString()
+                     req.headers.add(name: "authorization", value: "Basic \(resourceAuthHeader)")
+                 }
              }
+             .flatMap { res -> EventLoopFuture<TokenInfoResponse> in
+                do {
+                    return try req.eventLoop.future(res.content.decode(TokenInfoResponse.self))
+                } catch {
+                    return req.eventLoop.makeFailedFuture(Abort(.internalServerError))
+                }
+             }
+             .flatMap { [self] json -> EventLoopFuture<Void> in
+                 // Handle the json response.
+                 guard let tokenActive = json.active, tokenActive else {
+                     return req.eventLoop.makeFailedFuture(Abort(.unauthorized))
+                 }
+                 var scopes: [String]?
+                 if let tokenScopes = json.scope {
+                     scopes = tokenScopes.components(separatedBy: " ")
+                 }
 
-
-
-//         var scopes: [String]?
-//         var oauthUser: OAuthUser?
-//
-//         if let tokenScopes = tokenInfoJSON[OAuthResponseParameters.scope] {
-//             scopes = tokenScopes.components(separatedBy: " ")
-//         }
-//
-//         if let userID = tokenInfoJSON[OAuthResponseParameters.userID] {
-//             guard let username = tokenInfoJSON[OAuthResponseParameters.username] else {
-//                 req.eventLoop.makeFailedFuture(Abort(.internalServerError))
-//             }
-//             let userIdentifier: UUID = UUID(userID, in: nil)
-//             oauthUser = OAuthUser(userID: userIdentifier, username: username,
-//                     emailAddress: tokenInfoJSON[OAuthResponseParameters.email],
-//                     password: "".makeBytes())
-//         }
-
-//         self.remoteTokenResponse = RemoteTokenResponse(scopes: scopes, user: oauthUser)
-
+                 var oauthUser: OAuthUser?
+                 if let userID = json.userID {
+                     guard let username = json.username else {
+                         return req.eventLoop.makeFailedFuture(Abort(.internalServerError))
+                     }
+                     let userIdentifier = UUID(userID)
+                     oauthUser = OAuthUser(userID: userIdentifier, username: username,
+                             emailAddress: json.email,
+                             password: [0])
+                 }
+                 remoteTokenResponse = RemoteTokenResponse(scopes: scopes, user: oauthUser)
+                 return req.eventLoop.future()
+             }
      }
  }
 
