@@ -1,99 +1,104 @@
-// import Vapor
+ import Vapor
 
-// class RemoteOAuthHelper: OAuthHelper {
+ class RemoteOAuthHelper: OAuthHelper {
 
-//     weak var req: Request?
-//     let tokenIntrospectionEndpoint: String
-//     let client: Client
-//     let resourceServerUsername: String
-//     let resourceServerPassword: String
-//     var remoteTokenResponse: RemoteTokenResponse?
+     weak var req: Request?
+     let tokenIntrospectionEndpoint: String
+     let client: Client
+     let resourceServerUsername: String
+     let resourceServerPassword: String
+     var remoteTokenResponse: RemoteTokenResponse?
 
-//     init(req: Request, tokenIntrospectionEndpoint: String, client: Client,
-//          resourceServerUsername: String, resourceServerPassword: String) {
-//         self.req = req
-//         self.tokenIntrospectionEndpoint = tokenIntrospectionEndpoint
-//         self.client = client
-//         self.resourceServerUsername = resourceServerUsername
-//         self.resourceServerPassword = resourceServerPassword
-//         self.remoteTokenResponse = nil
-//     }
+     init(req: Request, tokenIntrospectionEndpoint: String, client: Client,
+          resourceServerUsername: String, resourceServerPassword: String) {
+         self.req = req
+         self.tokenIntrospectionEndpoint = tokenIntrospectionEndpoint
+         self.client = client
+         self.resourceServerUsername = resourceServerUsername
+         self.resourceServerPassword = resourceServerPassword
+         self.remoteTokenResponse = nil
+     }
 
-//     func assertScopes(_ req: Request, scopes: [String]?) -> EventLoopFuture<Void> {
-//         return setupRemoteTokenResponse(req)
+     func assertScopes(_ req: Request, scopes: [String]?) -> EventLoopFuture<Void> {
+         return setupRemoteTokenResponse(req)
+            .flatMap { [self] in
+                guard let remoteTokenResponse = remoteTokenResponse else {
+                    return req.eventLoop.makeFailedFuture(Abort(.internalServerError))
+                }
 
-//         guard let remoteTokenResponse = remoteTokenResponse else {
-//             return req.eventLoop.makeFailedFuture(Abort(.internalServerError))
-//         }
+                if let requiredScopes = scopes {
+                    guard let tokenScopes = remoteTokenResponse.scopes else {
+                        return req.eventLoop.makeFailedFuture(Abort(.unauthorized))
+                    }
 
-//         if let requiredScopes = scopes {
-//             guard let tokenScopes = remoteTokenResponse.scopes else {
-//                 return req.eventLoop.makeFailedFuture(Abort(.unauthorized))
-//             }
+                    for scope in requiredScopes {
+                        if !tokenScopes.contains(scope) {
+                            return req.eventLoop.makeFailedFuture(Abort(.unauthorized))
+                        }
+                    }
+                }
+                return req.eventLoop.future()
+            }
+     }
 
-//             for scope in requiredScopes {
-//                 if !tokenScopes.contains(scope) {
-//                     return req.eventLoop.makeFailedFuture(Abort(.unauthorized))
-//                 }
-//             }
-//         }
-
-//     }
-
-//     func user(_ req: Request) -> EventLoopFuture<OAuthUser> {
+     func user(_ req: Request) -> EventLoopFuture<OAuthUser> {
 //         if remoteTokenResponse == nil {
 //             setupRemoteTokenResponse(req)
 //         }
 
-//         guard let remoteTokenResponse = remoteTokenResponse else {
-//             return req.eventLoop.makeFailedFuture(Abort(.internalServerError))
-//         }
+        return setupRemoteTokenResponse(req)
+            .flatMap { [self] in
+                guard let remoteTokenResponse = remoteTokenResponse else {
+                    return req.eventLoop.makeFailedFuture(Abort(.internalServerError))
+                }
 
-//         guard let user = remoteTokenResponse.user else {
-//             return req.eventLoop.makeFailedFuture(Abort(.unauthorized))
-//         }
+                guard let user = remoteTokenResponse.user else {
+                    return req.eventLoop.makeFailedFuture(Abort(.unauthorized))
+                }
 
-//         return req.eventLoop.future(user)
-//     }
+                return req.eventLoop.future(user)
+            }
+     }
 
-//     struct TokenRequest {
-//         var token: String
-//     }
+     struct TokenRequest {
+         var token: String?
+     }
 
-//     private func setupRemoteTokenResponse(_ req: Request) -> EventLoopFuture<Void> {
-//         return req.getOAuthToken(req)
-//             .flatMap { token in
-//                 let tokenRequest = Request(application: req.application, method: .post, url: tokenIntrospectionEndpoint, on: req.eventLoop)
-//                 var tokenRequestJSON = JSON()
-//                 try tokenRequestJSON.set("token", token)
-//                 tokenRequest.json = tokenRequestJSON
+     private func setupRemoteTokenResponse(_ req: Request) -> EventLoopFuture<Void> {
+         return req.getOAuthToken(req)
+             .flatMap { token in
+//                 let request = Request(application: req.application, method: .post, url: tokenIntrospectionEndpoint, on: req.eventLoop)
+//                 let tokenRequest = TokenRequest(token: token)
+//                 let headers = HTTPHeaders()
 
 
 //                 let resourceAuthHeader = "\(resourceServerUsername):\(resourceServerPassword)".makeBytes().base64Encoded.makeString()
 //                 tokenRequest.headers[.authorization] = "Basic \(resourceAuthHeader)"
 
 //                 let tokenInfoResponse = try client.respond(to: tokenRequest)
-// //        client.post(URI(string: tokenIntrospectionEndpoint)) {
-// //            req in
-// //
-// //        }
-//             }
+ //        client.post(URI(string: tokenIntrospectionEndpoint)) {
+ //            req in
+ //
+ //        }
+//                 guard let tokenInfoJSON = tokenInfoResponse.json else {
+//                     return req.eventLoop.makeFailedFuture(Abort(.internalServerError))
+//                 }
+//
+//                 guard let tokenActive = tokenInfoJSON[OAuthResponseParameters.active]?.bool, tokenActive else {
+//                     return req.eventLoop.makeFailedFuture(Abort(.unauthorized))
+//                 }
+                return req.eventLoop.future()
+             }
 
-//         guard let tokenInfoJSON = tokenInfoResponse.json else {
-//             req.eventLoop.makeFailedFuture(Abort(.internalServerError))
-//         }
 
-//         guard let tokenActive = tokenInfoJSON[OAuthResponseParameters.active]?.bool, tokenActive else {
-//             req.eventLoop.makeFailedFuture(Abort(.unauthorized))
-//         }
 
 //         var scopes: [String]?
 //         var oauthUser: OAuthUser?
-
+//
 //         if let tokenScopes = tokenInfoJSON[OAuthResponseParameters.scope] {
 //             scopes = tokenScopes.components(separatedBy: " ")
 //         }
-
+//
 //         if let userID = tokenInfoJSON[OAuthResponseParameters.userID] {
 //             guard let username = tokenInfoJSON[OAuthResponseParameters.username] else {
 //                 req.eventLoop.makeFailedFuture(Abort(.internalServerError))
@@ -106,10 +111,10 @@
 
 //         self.remoteTokenResponse = RemoteTokenResponse(scopes: scopes, user: oauthUser)
 
-//     }
-// }
+     }
+ }
 
-// struct RemoteTokenResponse {
-//     let scopes: [String]?
-//     let user: OAuthUser?
-// }
+ struct RemoteTokenResponse {
+     let scopes: [String]?
+     let user: OAuthUser?
+ }
