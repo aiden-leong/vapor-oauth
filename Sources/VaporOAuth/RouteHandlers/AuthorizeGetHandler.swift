@@ -5,8 +5,7 @@ struct AuthorizeGetHandler {
     let authorizeHandler: AuthorizeHandler
     let clientValidator: ClientValidator
 
-    func handleRequest(req: Request) throws -> Response {
-
+    func handleRequest(_ req: Request) throws -> Response {
         let (errorResponse, createdAuthRequestObject) = try validateRequest(req)
 
         if let errorResponseReturned = errorResponse {
