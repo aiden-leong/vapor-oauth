@@ -3,7 +3,13 @@
  struct OAuthResponse: Codable {
      var error: String?
      var errorDescription: String?
-     var active: String?
+     var active: Bool?
+     var clientID: String?
+     var scopes: String?
+     var userID: UUID?
+     var username: String?
+     var email: String?
+     var exp: Int?
  }
 
  struct TokenIntrospectionHandler {
@@ -45,34 +51,43 @@
          var oauthResponse = OAuthResponse(active: active)
 
          if let clientID = clientID {
-             try json.set(OAuthResponseParameters.clientID, clientID)
+             oauthResponse.clientID = clientID
          }
 
          if let scopes = scopes {
-             try json.set(OAuthResponseParameters.scope, scopes)
+             oauthResponse.scopes = scopes
          }
 
          if let user = user {
-             try json.set(OAuthResponseParameters.userID, user.id)
-             try json.set(OAuthResponseParameters.username, user.username)
+             oauthResponse.userID = user.id
+             oauthResponse.username = user.username
              if let email = user.emailAddress {
-                 try json.set(OAuthResponseParameters.email, email)
+                 oauthResponse.email = email
              }
          }
 
          if let expiryDate = expiryDate {
-             try json.set(OAuthResponseParameters.expiry, Int(expiryDate.timeIntervalSince1970))
+             oauthResponse.exp = Int(expiryDate.timeIntervalSince1970)
          }
 
-         let response = Response(status: .ok)
-         response.json = json
+         let encoder = JSONEncoder.init()
+         let bodyData = try encoder.encode(oauthResponse)
+         let bodyString = String(data: bodyData, encoding: .utf8)!
+         let httpHeaders = HTTPHeaders()
+         let response = Response(status: .ok, version: .init(major: 1, minor: 1), headers: httpHeaders, body: .init(string: bodyString))
+
          return response
      }
 
      func createErrorResponse(status: HTTPStatus, errorMessage: String, errorDescription: String) throws -> Response {
-         var json = OAuthResponse(error: errorMessage, errorDescription: errorDescription)
-         let response = Response(status: status)
-         response.json = json
+         let oauthResponse = OAuthResponse(error: errorMessage, errorDescription: errorDescription)
+
+         let encoder = JSONEncoder.init()
+         let bodyData = try encoder.encode(oauthResponse)
+         let bodyString = String(data: bodyData, encoding: .utf8)!
+         let httpHeaders = HTTPHeaders()
+         let response = Response(status: .ok, version: .init(major: 1, minor: 1), headers: httpHeaders, body: .init(string: bodyString))
+
          return response
      }
  }
