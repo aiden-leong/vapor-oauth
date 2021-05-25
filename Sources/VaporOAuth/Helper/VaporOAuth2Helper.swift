@@ -10,7 +10,7 @@ public final class VaporOAuth2Helper {
                              resourceServerUsername: String, resourceServerPassword: String) {
         let helper = VaporOAuth2Helper(req: req, tokenIntrospectionEndpoint: tokenIntrospectionEndpoint, client: client,
                             resourceServerUsername: resourceServerUsername, resourceServerPassword: resourceServerPassword)
-        req.storage[VaporOAuth2HelperKey] = helper
+        req.storage[VaporOAuth2HelperKey.self] = helper
     }
 
      let oauthHelper: OAuthHelper
@@ -38,12 +38,12 @@ public final class VaporOAuth2Helper {
 
 extension Request {
     public var oauth: VaporOAuth2Helper {
-        if let existing = storage[VaporOAuth2HelperKey] {
+        if let existing = storage[VaporOAuth2HelperKey.self] {
             return existing
         }
 
         let helper = VaporOAuth2Helper(req: self, provider: Request.oauthProvider)
-        storage[VaporOAuth2HelperKey] = helper
+        storage[VaporOAuth2HelperKey.self] = helper
 
         return helper
     }
